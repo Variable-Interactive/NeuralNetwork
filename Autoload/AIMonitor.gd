@@ -36,19 +36,7 @@ func _player_destroyed(network: Network, time: float):
 
 
 func _simulation_over():
-	# get winners of this generation
-	networks = gen.sort_by_rewards(networks)
-
-	# These are the winners
-	var parent_1: Network = networks.pop_back()
-	var parent_2: Network = networks.pop_back()
-
-	# make a crossover
-	next_gen_networks.clear()
-	for _i in range(players_per_generation):
-		var new_network: Network = gen.crossover(parent_1, parent_2, 0.5)
-		gen.try_mutating(new_network, 0.0001)
-		next_gen_networks.append(new_network)
+	gen.prepere_next_generation(networks, players_per_generation)
 
 	# Start next generation
 	current_generation += 1

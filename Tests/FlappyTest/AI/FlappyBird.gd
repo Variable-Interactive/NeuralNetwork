@@ -1,6 +1,6 @@
 extends KinematicBody2D
 
-var sizes = [4, 16, 16, 16, 1]
+var sizes = [4, 16, 16, 16, 16, 1]
 var net: Network
 
 # Input
@@ -30,6 +30,8 @@ func _ready() -> void:
 	connect("destroyed", AiMonitor, "_player_destroyed")
 	############################################
 
+	$Sprite.modulate = Color(randf(), randf(), randf(), 1)
+
 
 func _process(_delta: float) -> void:
 	focus_points = get_closest_points()
@@ -38,10 +40,9 @@ func _process(_delta: float) -> void:
 	velocity.y += gravity
 
 	#### Setting inputs to the network ########
-	var input = [[focus_points[0].x], [focus_points[0].y], [focus_points[1].x], [focus_points[1].y]]
+	var input = [focus_points[0].x, focus_points[0].y, focus_points[1].x, focus_points[1].y]
 	var res = net.feedforward(input)
-#	print(res[0][0])
-	if res[0][0] > 0.5 and $JumpRecoil.is_stopped():
+	if res[0] > 0.5 and $JumpRecoil.is_stopped():
 		jump()
 	###########################################
 

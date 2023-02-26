@@ -35,14 +35,14 @@ position = Vector2( 1097, 486 )
 position = Vector2( 1097, 88 )
 
 [node name="Area2D" type="Area2D" parent="." groups=["obstacle"]]
-position = Vector2( -263, 682 )
+position = Vector2( -199, 690 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2( 422, -32.5 )
 shape = SubResource( 1 )
 
 [node name="Area2D2" type="Area2D" parent="." groups=["obstacle"]]
-position = Vector2( -263, -22 )
+position = Vector2( -215, -14 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D2"]
 position = Vector2( 422, -32.5 )
