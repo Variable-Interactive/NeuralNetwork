@@ -1,10 +1,7 @@
 extends KinematicBody2D
 
-var sizes = [4, 16, 16, 16, 16, 1]
+var sizes = [2, 16, 1]  # nodes in the respective layers
 var net: Network
-
-# Input
-var focus_points
 
 var jump_vel = 250
 var velocity = Vector2.ZERO
@@ -19,13 +16,14 @@ func _ready() -> void:
 	initial_time = Time.get_ticks_msec()
 	level = get_tree().current_scene
 
-	# set inheritance if any
+	########## The AI Initialization ###########
+	# set inheritance if any is assigned by the genetic algorithm
 	if AiMonitor.next_gen_networks.size() > 0:
 		net = AiMonitor.next_gen_networks.pop_back()
 	else:
 		 net = Network.new(sizes)
 
-	##### add this player to observer unit #####
+	# add this player to observer unit
 	# warning-ignore:return_value_discarded
 	connect("destroyed", AiMonitor, "_player_destroyed")
 	############################################
@@ -34,13 +32,10 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	focus_points = get_closest_points()
-	$RayCast2D.cast_to = focus_points[0]
-	$RayCast2D2.cast_to = focus_points[1]
 	velocity.y += gravity
 
-	#### Setting inputs to the network ########
-	var input = [focus_points[0].x, focus_points[0].y, focus_points[1].x, focus_points[1].y]
+	#### Setting inputs to the NeuralNetwork ########
+	var input = get_input_points()
 	var res = net.feedforward(input)
 	if res[0] > 0.5 and $JumpRecoil.is_stopped():
 		jump()
@@ -63,14 +58,12 @@ func jump():
 	velocity.y = -jump_vel
 
 
-func get_closest_points():
+func get_input_points():
 	var obs: Array = level.obstacles
 	for idx in obs.size():
 		var index = idx
 		if obs[index].global_position.x > global_position.x:
-			var distance_a = global_position.distance_to(obs[index].top.global_position)
-			var point_a = global_position.direction_to(obs[index].top.global_position) * distance_a
-			var distance_b = global_position.distance_to(obs[index].bottom.global_position)
-			var point_b = global_position.direction_to(obs[index].bottom.global_position) * distance_b
-			return [point_a, point_b]
-	return Vector2.ZERO
+			var distance = global_position.distance_to(obs[index].global_position)
+			var point = global_position.direction_to(obs[index].global_position) * distance
+			return [point.x, point.y]
+	return [0, 0]

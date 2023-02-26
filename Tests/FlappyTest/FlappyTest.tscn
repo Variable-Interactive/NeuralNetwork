@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Tests/FlappyTest/FlappyTest.gd" type="Script" id=1]
+[ext_resource path="res://Tests/fonts/Roboto.tres" type="DynamicFont" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 432, 42.5 )
@@ -47,5 +48,18 @@ position = Vector2( -215, -14 )
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D2"]
 position = Vector2( 422, -32.5 )
 shape = SubResource( 1 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Interface" type="Control" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Interface"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_fonts/font = ExtResource( 2 )
+align = 1
+valign = 1
 
 [connection signal="timeout" from="SpawnTimer" to="." method="_on_SpawnTimer_timeout"]

@@ -1,9 +1,18 @@
 class_name GeneticEvolution
 extends Reference
+# Written by Variable-ind (https://github.com/Variable-ind)
 
-const MAX_CROSSOVER_SPLITS = 2
+# Adjustable parameters
+const CROSSOVER_EXTENT = 0.5  # 1 (means only parent 1) to 0 (means only parent 1)
+const MAX_CROSSOVER_SPLITS: int = 100  # the max amount of splits a network can have
+
 const MUTATION_DEGREE = 0.5  # 1 (means full mutation) to 0 (no mutation)
-var random := RandomNumberGenerator.new()
+const PERCENTAGE_MUTATION = 0.5  # 0 to 1 (how much mutatated elements in next generation)
+
+# parameters you need not bother with
+var _random := RandomNumberGenerator.new()
+var _last_winners_a: Network  # used to compare previous networks
+var _last_winners_b: Network  # used to compare previous networks
 
 
 func prepere_next_generation(networks: Array, player_per_gen: int):
@@ -14,6 +23,20 @@ func prepere_next_generation(networks: Array, player_per_gen: int):
 	var winner_1: Network = networks.pop_back()
 	var winner_2: Network = networks.pop_back()
 
+	# we will compare the performance of this generation with the previous one
+	# and if this generation is poor, then discard it
+	if _last_winners_a and _last_winners_b:
+		if winner_1.reward > _last_winners_a.reward:
+			_last_winners_a = winner_1
+		else:
+			winner_1 = _last_winners_a
+		if winner_2.reward > _last_winners_b.reward:
+			_last_winners_b = winner_2
+		else:
+			winner_2 = _last_winners_b
+	else:
+		_last_winners_a = winner_1
+		_last_winners_b = winner_2
 	var next_gen_networks = []
 	for i in range(player_per_gen):
 		var new_network: Network
@@ -23,7 +46,7 @@ func prepere_next_generation(networks: Array, player_per_gen: int):
 			# Make a crossover
 			new_network = _crossover(winner_1, winner_2)
 			var can_mutate = randf()
-			if can_mutate < 0.5: # If we need mutation not crossover
+			if can_mutate > PERCENTAGE_MUTATION: # If we need mutation not crossover
 				new_network = _mutate(winner_1)
 		next_gen_networks.append(new_network)
 
@@ -33,14 +56,14 @@ func _crossover(parent_1: Network, parent_2: Network = null) -> Network:
 	var new_network: Network = Network.new(parent_1.sizes)
 	new_network.biases = parent_1.biases.duplicate(true)
 	new_network.weights = parent_1.weights.duplicate(true)
-	random.randomize()
+	_random.randomize()
 	if parent_2 == null:
 		return new_network
 
 	var current_split = 0
 	for i in range(new_network.num_layers - 2):
-		var val_cross = random.randf()
-		if val_cross < 0.5:  # Heads
+		var val_cross = _random.randf()
+		if val_cross > 0:  # Heads
 			if current_split > MAX_CROSSOVER_SPLITS:
 				# interchange corresponding chromosomes
 				new_network.biases[i] = parent_2.biases[i]
@@ -50,10 +73,10 @@ func _crossover(parent_1: Network, parent_2: Network = null) -> Network:
 
 
 func _mutate(net: Network) -> Network:
-	random.randomize()
+	_random.randomize()
 	var new_network: Network = Network.new(net.sizes)
 	for i in new_network.biases.size():
-		var value = random.randf()
+		var value = _random.randf()
 		if value > MUTATION_DEGREE: # don't mutate this layer's biases/weights
 			new_network.biases[i] = net.biases[i].duplicate(true)
 			new_network.weights[i] = net.weights[i].duplicate(true)

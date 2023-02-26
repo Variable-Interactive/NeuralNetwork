@@ -1,8 +1,8 @@
 class_name Network
 extends Reference
+# Written by Variable-ind (https://github.com/Variable-ind)
 
 var matrix := Matrix.new()
-
 var num_layers: int
 var sizes := PoolIntArray()
 var weights := Array()
@@ -23,8 +23,17 @@ func _init(_sizes: PoolIntArray) -> void:
 
 
 func feedforward(activation_array: Array) -> Array:
+	# failsafe
+	if activation_array.size() != sizes[0]:
+		printerr("Inputs are not equall to first layer nodes")
+		activation_array.resize(sizes[0])
+		for i in activation_array.size():
+			if activation_array[i] == null:
+				activation_array[i] = 0
+
 	# The initial array will be a simple array so we'll convert to a vertical matrix
 	activation_array = matrix.create_vertical(activation_array)
+
 	# activation array is the set of activation numbers of input layer
 	for layer in num_layers - 1:
 		var b = biases[layer]

@@ -1,9 +1,9 @@
 extends Node
 
-var players_per_generation: int = 50
+var players_per_generation: int = 100
 
 var gen := GeneticEvolution.new()
-var current_generation: int = 0
+var current_generation: int = -1
 
 var networks: Array = []
 var next_gen_networks: Array = []
@@ -12,7 +12,7 @@ var players: int = 0
 
 
 func start_simulation():
-	print("Current Generation: ", current_generation)
+	current_generation += 1
 	players = players_per_generation
 	networks.clear()
 
@@ -32,13 +32,9 @@ func _player_destroyed(network: Network, time: float):
 		if players == 0:
 			# all players are done so stop simulation
 			_simulation_over()
-	print("Left :", players, " Time: ", time)
 
 
 func _simulation_over():
 	gen.prepere_next_generation(networks, players_per_generation)
-
-	# Start next generation
-	current_generation += 1
 	# warning-ignore:return_value_discarded
 	get_tree().reload_current_scene()

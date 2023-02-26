@@ -1,17 +1,17 @@
 class_name Matrix
 extends Reference
 
-var random := RandomNumberGenerator.new()
+var _random := RandomNumberGenerator.new()
 
 
-func create_vertical(array: Array):
+func create_vertical(array: Array) -> Array:
 	var matrix = []
 	for item in array.size():
 		matrix.append([array[item]])
 	return matrix
 
 
-func de_construct_vertical(matrix: Array):
+func de_construct_vertical(matrix: Array) -> Array:
 	var array := []
 	for item in matrix.size():
 		array.append(matrix[item][0])
@@ -19,7 +19,7 @@ func de_construct_vertical(matrix: Array):
 
 
 func make_rand_matrix(row: int, col: int) -> Array:
-	random.randomize()
+	_random.randomize()
 	# rows increase top-down so y
 	# columns increase from left to right so x
 	var matrix = []
@@ -28,13 +28,13 @@ func make_rand_matrix(row: int, col: int) -> Array:
 	for _y in range(row):
 		var r = []
 		for _x in range(col):
-			var value = random.randfn()
+			var value = _random.randfn()
 			r.append(value)
 		matrix.append(r)
 	return matrix
 
 
-func zero_matrix(row: int, col: int):
+func zero_matrix(row: int, col: int) -> Array:
 	var matrix = []
 	if row < 1 or col < 1:
 		return matrix
@@ -56,14 +56,14 @@ func dot(a: Array, b: Array) -> Array:
 	return matrix
 
 
-func add(a: Array, b: Array):
+func add(a: Array, b: Array) -> Array:
 	# this will add 2 (x, 1) matrices
 	for i in a.size():
 		a[i][0] = a[i][0] + b[i][0]
 	return a
 
 
-func sigmoid(activation_array: Array):
+func sigmoid(activation_array: Array) -> Array:
 	# The sigmoid function.
 	for idx in activation_array.size():
 		var x = activation_array[idx][0]

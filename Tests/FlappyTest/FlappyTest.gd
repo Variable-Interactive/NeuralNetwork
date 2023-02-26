@@ -6,6 +6,7 @@ var obstacles = []
 func _ready() -> void:
 	AiMonitor.start_simulation()
 
+	$CanvasLayer/Interface/Label.text = str("Generation: ", AiMonitor.current_generation)
 	var obstacle = preload("res://Tests/FlappyTest/obstacle/Obstacle.tscn").instance()
 	var point = randi() % 5
 	obstacle.global_position = $Points.get_child(point).global_position
