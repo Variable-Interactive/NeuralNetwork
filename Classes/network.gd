@@ -10,6 +10,7 @@ var biases := Array()  # an array of a bias column matrices
 
 var reward: float = 0
 
+signal activation_changed(layer_idx, activations)
 
 func _init(_sizes: PoolIntArray) -> void:
 	# initializing with random weights and biases
@@ -23,7 +24,7 @@ func _init(_sizes: PoolIntArray) -> void:
 
 
 func feedforward(activation_array: Array) -> Array:
-	# failsafe
+	# A failsafe
 	if activation_array.size() != sizes[0]:
 		printerr("Inputs are not equall to first layer nodes")
 		activation_array.resize(sizes[0])
@@ -33,6 +34,7 @@ func feedforward(activation_array: Array) -> Array:
 
 	# The initial array will be a simple array so we'll convert to a vertical matrix
 	activation_array = matrix.create_vertical(activation_array)
+	emit_signal("activation_changed", 0, activation_array)
 
 	# activation array is the set of activation numbers of input layer
 	for layer in num_layers - 1:
@@ -40,5 +42,6 @@ func feedforward(activation_array: Array) -> Array:
 		var w = weights[layer]
 		# find the activation numbers for the next layer
 		activation_array = matrix.sigmoid(matrix.add(matrix.dot(w, activation_array), b))
+		emit_signal("activation_changed", layer + 1, activation_array)
 	# now the activation array consist of output activation
 	return matrix.de_construct_vertical(activation_array)

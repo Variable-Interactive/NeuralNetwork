@@ -33,7 +33,7 @@ _global_script_class_icons={
 [application]
 
 config/name="NeuralNetwork"
-run/main_scene="res://Tests/FlappyTest/FlappyTest.tscn"
+run/main_scene="res://Examples/FlappyTest/FlappyTest.tscn"
 
 [autoload]
 

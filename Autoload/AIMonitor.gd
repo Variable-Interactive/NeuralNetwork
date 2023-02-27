@@ -1,40 +1,27 @@
 extends Node
 
-var players_per_generation: int = 100
 
 var gen := GeneticEvolution.new()
-var current_generation: int = -1
 
-var networks: Array = []
 var next_gen_networks: Array = []
 
-var players: int = 0
+
+var visualizer_popup
+
+func _ready() -> void:
+	visualizer_popup = preload("res://NetworkVisualizer/VisualizerPopup.tscn").instance()
+	add_child(visualizer_popup)
+	visualizer_popup.popup_centered()
+	# warning-ignore:return_value_discarded
+	gen.connect("simulation_over", self, "_simulation_over")
 
 
-func start_simulation():
-	current_generation += 1
-	players = players_per_generation
-	networks.clear()
+func player_destroyed(network: Network):
+	# add network to the list for evaluation
+	gen.add_network(network)
 
 
-func _add_network(player_network: Network):
-	networks.append(player_network)
-
-
-func _player_destroyed(network: Network, time: float):
-	# Grant a reward based on performance
-	network.reward = time
-
-	# add network to the list for evaluation later
-	_add_network(network)
-	players -= 1
-	if players < 1:
-		if players == 0:
-			# all players are done so stop simulation
-			_simulation_over()
-
-
-func _simulation_over():
-	gen.prepere_next_generation(networks, players_per_generation)
+func _simulation_over(next_generation):
+	next_gen_networks = next_generation
 	# warning-ignore:return_value_discarded
 	get_tree().reload_current_scene()

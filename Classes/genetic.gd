@@ -4,24 +4,49 @@ extends Reference
 
 # Adjustable parameters
 const CROSSOVER_EXTENT = 0.5  # 1 (means only parent 1) to 0 (means only parent 1)
-const MAX_CROSSOVER_SPLITS: int = 100  # the max amount of splits a network can have
+const MAX_CROSSOVER_SPLITS: int = 2  # the max amount of splits a network can have
 
 const MUTATION_DEGREE = 0.5  # 1 (means full mutation) to 0 (no mutation)
-const PERCENTAGE_MUTATION = 0.5  # 0 to 1 (how much mutatated elements in next generation)
+const PERCENTAGE_MUTATION = 0.9  # 0 to 1 (how much mutatated elements in next generation)
+
+var current_generation: int = -1
+var players_per_generation: int = 50
 
 # parameters you need not bother with
 var _random := RandomNumberGenerator.new()
 var _last_winners_a: Network  # used to compare previous networks
 var _last_winners_b: Network  # used to compare previous networks
+var _alive: int = 0
+var _current_gen_networks = []
+
+signal simulation_over(next_gen)
 
 
-func prepere_next_generation(networks: Array, player_per_gen: int):
+func start_simulation():
+	current_generation += 1
+	_alive = players_per_generation
+	_current_gen_networks.clear()
+
+
+func add_network(player: Network):
+	_current_gen_networks.append(player)
+	_alive -= 1
+	if _alive < 1:
+		if _alive == 0:
+			stop_simulation()
+
+
+func stop_simulation():
+	emit_signal("simulation_over", prepere_next_generation())
+
+
+func prepere_next_generation() -> Array:
 	# get winners of this generation
-	networks.sort_custom(self, "_sort_networks")
+	_current_gen_networks.sort_custom(self, "_sort_networks")
 
 	# These are the winners
-	var winner_1: Network = networks.pop_back()
-	var winner_2: Network = networks.pop_back()
+	var winner_1: Network = _current_gen_networks.pop_back()
+	var winner_2: Network = _current_gen_networks.pop_back()
 
 	# we will compare the performance of this generation with the previous one
 	# and if this generation is poor, then discard it
@@ -37,8 +62,9 @@ func prepere_next_generation(networks: Array, player_per_gen: int):
 	else:
 		_last_winners_a = winner_1
 		_last_winners_b = winner_2
+
 	var next_gen_networks = []
-	for i in range(player_per_gen):
+	for i in range(players_per_generation):
 		var new_network: Network
 		if i < 1: # keep 1 best from the last generation
 			new_network = _crossover(winner_1)
@@ -49,6 +75,7 @@ func prepere_next_generation(networks: Array, player_per_gen: int):
 			if can_mutate > PERCENTAGE_MUTATION: # If we need mutation not crossover
 				new_network = _mutate(winner_1)
 		next_gen_networks.append(new_network)
+	return next_gen_networks
 
 
 func _crossover(parent_1: Network, parent_2: Network = null) -> Network:
@@ -63,8 +90,8 @@ func _crossover(parent_1: Network, parent_2: Network = null) -> Network:
 	var current_split = 0
 	for i in range(new_network.num_layers - 2):
 		var val_cross = _random.randf()
-		if val_cross > 0:  # Heads
-			if current_split > MAX_CROSSOVER_SPLITS:
+		if val_cross > 0.5:  # Heads
+			if current_split < MAX_CROSSOVER_SPLITS:
 				# interchange corresponding chromosomes
 				new_network.biases[i] = parent_2.biases[i]
 				new_network.weights[i] = parent_2.weights[i]

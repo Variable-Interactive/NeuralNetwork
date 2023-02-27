@@ -1,0 +1,30 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://NetworkVisualizer/NetworkVisualizer.gd" type="Script" id=2]
+
+[node name="NetworkVisualizer" type="PanelContainer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1017.0
+margin_bottom = 593.0
+
+[node name="identifier" type="ColorRect" parent="VBoxContainer"]
+unique_name_in_owner = true
+margin_right = 1010.0
+margin_bottom = 10.0
+rect_min_size = Vector2( 0, 10 )
+
+[node name="LayerContainer" type="HBoxContainer" parent="VBoxContainer"]
+unique_name_in_owner = true
+margin_top = 14.0
+margin_right = 1010.0
+margin_bottom = 586.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_constants/separation = 100
+alignment = 1
