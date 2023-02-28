@@ -24,6 +24,7 @@ func _ready() -> void:
 
 		var network_visualizer = preload("res://NetworkVisualizer/NetworkVisualizer.tscn").instance()
 		AiMonitor.visualizer_popup.visualizer_container.add_child(network_visualizer)
+		player.visualizer = network_visualizer
 		network_visualizer.identifier.color = player.modulation
 		network_visualizer.visualize_network(player.net)
 

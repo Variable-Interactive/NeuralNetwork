@@ -7,7 +7,7 @@ const LINE_COLOR_NEGATIVE = Color.blueviolet
 
 const ACTIVATION_COLOR_POSITIVE = Color.white
 const ACTIVATION_COLOR_INACTIVE = Color.black
-const ACTIVATION_COLOR_NEGATIVE = Color.blue
+const ACTIVATION_COLOR_NEGATIVE = Color.blue  # would appear in 1st layer
 
 var lines = []
 
@@ -17,28 +17,32 @@ onready var identifier: ColorRect = $"%identifier"
 
 func visualize_network(network: Network) -> void:
 	# generate a framework
+	var sep = 0
+	for i in network.sizes:
+		if i > sep:
+			sep = i
+	layer_container.set("custom_constants/separation", max(10, sep * 2))
 	for x in network.sizes.size():
 		var layer = _generate_layer()
 		for _y in range(network.sizes[x]):
 			_generate_node(layer)
 	# now set weights
 	yield(get_tree(), "idle_frame")
-	lines = update_weights(network)
+	update_weights(network)
 	# warning-ignore:return_value_discarded
 	network.connect("activation_changed", self, "_update_activations")
-	update()
 
 
 func update_weights(network: Network):
-	var lines_array = []
+	lines.clear()
 	for layer_number in network.weights.size():
 		for current_node_idx in network.weights[layer_number].size():
 			for prev_node_idx in network.weights[layer_number][current_node_idx].size():
 				var from = get_activation_node(layer_number, prev_node_idx)
 				var to = get_activation_node(layer_number + 1, current_node_idx)
 				var weight = network.weights[layer_number][current_node_idx][prev_node_idx]
-				lines_array.append([from, to, weight])
-	return lines_array
+				lines.append([from, to, weight])
+	update()
 
 
 func get_activation_node(layer_idx, node_idx) -> TextureRect:
@@ -53,10 +57,13 @@ func _update_activations(layer_idx, activations: Array):
 		var color = ACTIVATION_COLOR_POSITIVE
 		if activation < 0:
 			color = ACTIVATION_COLOR_NEGATIVE
-		color.a = abs(activation)
-		if activation == 0:
+		if is_equal_approx(activation, 0):
 			color = ACTIVATION_COLOR_INACTIVE
+		else:
+			color.a = abs(activation)
+
 		layer.get_child(node_idx).modulate = color
+	update()
 
 
 func _generate_layer() -> Node:
@@ -79,4 +86,4 @@ func _draw() -> void:
 			var color := LINE_COLOR_POSITIVE
 			if line[2] < 0:
 				color = LINE_COLOR_NEGATIVE
-			draw_line(start, end, color, abs(line[2]) * SCALE)
+			draw_line(start, end, color, abs(line[2]) * SCALE * 2)

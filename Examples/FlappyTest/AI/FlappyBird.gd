@@ -1,6 +1,6 @@
 extends KinematicBody2D
 
-var sizes = [2, 16, 4, 1]  # nodes in the respective layers
+var sizes = [2, 10, 10, 10, 1]  # nodes in the respective layers
 var net: Network
 
 var jump_vel = 250
@@ -10,6 +10,8 @@ var level: Node2D
 var initial_time: float
 
 var modulation: Color
+
+var visualizer
 
 func jump():
 	$JumpRecoil.start()
@@ -46,17 +48,12 @@ func _process(_delta: float) -> void:
 
 func _on_Area2D_area_entered(area: Area2D) -> void:
 	if area.is_in_group("obstacle"):
-		###### remove Visualizer #####
-		var idx = get_index()
-		var visualizer_container = AiMonitor.visualizer_popup.visualizer_container
-		var visualizer: PanelContainer = visualizer_container.get_child(idx)
-		if visualizer:
-			visualizer.queue_free()
-		##############################
 		queue_free()
 
 
 func _exit_tree() -> void:
+	########### remove Visualizer ############
+	visualizer.queue_free()
 	############ Grant a reward ###############
 	net.reward = Time.get_ticks_msec() - initial_time
 	# Add to the monitor
