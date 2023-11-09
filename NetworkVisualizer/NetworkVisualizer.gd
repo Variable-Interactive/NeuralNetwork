@@ -36,11 +36,11 @@ func visualize_network(network: Network) -> void:
 func update_weights(network: Network):
 	lines.clear()
 	for layer_number in network.weights.size():
-		for current_node_idx in network.weights[layer_number].size():
-			for prev_node_idx in network.weights[layer_number][current_node_idx].size():
+		for current_node_idx in network.weights[layer_number].no_of_columns:
+			for prev_node_idx in network.weights[layer_number].no_of_rows:
 				var from = get_activation_node(layer_number, prev_node_idx)
 				var to = get_activation_node(layer_number + 1, current_node_idx)
-				var weight = network.weights[layer_number][current_node_idx][prev_node_idx]
+				var weight = network.weights[layer_number].get_index(current_node_idx, prev_node_idx)
 				lines.append([from, to, weight])
 	queue_redraw()
 

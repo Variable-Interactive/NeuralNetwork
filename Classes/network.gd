@@ -2,11 +2,10 @@ class_name Network
 extends RefCounted
 # Written by Variable-ind (https://github.com/Variable-ind)
 
-var matrix := Matrix.new()
 var num_layers: int
 var sizes := PackedInt32Array()
-var weights := Array()
-var biases := Array()  # an array of a bias column matrices
+var weights: Array[Matrix]  ## an array of a weight square matrices
+var biases: Array[Matrix]  ## an array of a bias column matrices
 
 var reward: float = 0
 
@@ -19,8 +18,8 @@ func _init(_sizes: PackedInt32Array) -> void:
 	for layer in range(1, sizes.size()): # first layer will have no bias/weights
 		var size_x = sizes[layer - 1]  # number of columns (no of neurons in previous layer)
 		var size_y = sizes[layer]  # number of rows (no of neurons in current layer)
-		biases.append(matrix.make_rand_matrix(size_y, 1))
-		weights.append(matrix.make_rand_matrix(size_y, size_x))
+		biases.append(Matrix.new(size_y, 1, true))
+		weights.append(Matrix.new(size_y, size_x, true))
 
 
 func feedforward(activation_array: Array) -> Array:
@@ -33,7 +32,10 @@ func feedforward(activation_array: Array) -> Array:
 				activation_array[i] = 0
 
 	# The initial array will be a simple array so we'll convert to a vertical matrix
-	activation_array = matrix.create_vertical(activation_array)
+	var activation_matrix = Matrix.new(activation_array.size(), 1)
+	for row in range(1, activation_matrix.no_of_rows + 1):
+		activation_matrix.set_index(row, 1, activation_array[row - 1])
+
 	emit_signal("activation_changed", 0, activation_array)
 
 	# activation array is the set of activation numbers of input layer
@@ -41,7 +43,7 @@ func feedforward(activation_array: Array) -> Array:
 		var b = biases[layer]
 		var w = weights[layer]
 		# find the activation numbers for the next layer
-		activation_array = matrix.sigmoid(matrix.add(matrix.dot(w, activation_array), b))
-		emit_signal("activation_changed", layer + 1, activation_array)
+		activation_matrix = (w.dot(activation_matrix).add(b)).sigmoid
+		emit_signal("activation_changed", layer + 1, activation_matrix)
 	# now the activation array consist of output activation
-	return matrix.de_construct_vertical(activation_array)
+	return activation_matrix.to_array()
