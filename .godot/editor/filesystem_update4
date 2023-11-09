@@ -1,0 +1,9 @@
+res://Examples/FlappyTest/FlappyTest.tscn
+res://Classes/matrix.gd
+res://NetworkVisualizer/NetworkVisualizer.gd
+res://Examples/FlappyTest/AI/FlappyBird.tscn
+res://Examples/FlappyTest/AI/FlappyBird.gd
+res://NetworkVisualizer/VisualizerPopup.tscn
+res://NetworkVisualizer/NetworkVisualizer.tscn
+res://Examples/FlappyTest/obstacle/Obstacle.tscn
+res://NetworkVisualizer/VisualizerPopup.gd

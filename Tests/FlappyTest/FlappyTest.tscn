@@ -1,10 +1,10 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://Tests/FlappyTest/FlappyTest.gd" type="Script" id=1]
-[ext_resource path="res://Tests/fonts/Roboto.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Tests/fonts/Roboto.tres" type="FontFile" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 432, 42.5 )
+size = Vector2( 432, 42.5 )
 
 [node name="FlappyTest" type="Node2D"]
 script = ExtResource( 1 )
@@ -15,24 +15,24 @@ autostart = true
 
 [node name="Obstacles" type="Node2D" parent="."]
 
-[node name="PlayerPoint" type="Position2D" parent="."]
+[node name="PlayerPoint" type="Marker2D" parent="."]
 position = Vector2( 1097, 283 )
 
 [node name="Points" type="Node2D" parent="."]
 
-[node name="1" type="Position2D" parent="Points"]
+[node name="1" type="Marker2D" parent="Points"]
 position = Vector2( 1097, 390 )
 
-[node name="2" type="Position2D" parent="Points"]
+[node name="2" type="Marker2D" parent="Points"]
 position = Vector2( 1097, 184 )
 
-[node name="3" type="Position2D" parent="Points"]
+[node name="3" type="Marker2D" parent="Points"]
 position = Vector2( 1097, 283 )
 
-[node name="4" type="Position2D" parent="Points"]
+[node name="4" type="Marker2D" parent="Points"]
 position = Vector2( 1097, 486 )
 
-[node name="5" type="Position2D" parent="Points"]
+[node name="5" type="Marker2D" parent="Points"]
 position = Vector2( 1097, 88 )
 
 [node name="Area2D" type="Area2D" parent="." groups=["obstacle"]]
@@ -58,7 +58,7 @@ anchor_bottom = 1.0
 [node name="Label" type="Label" parent="CanvasLayer/Interface"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-custom_fonts/font = ExtResource( 2 )
+theme_override_fonts/font = ExtResource( 2 )
 align = 1
 valign = 1
 

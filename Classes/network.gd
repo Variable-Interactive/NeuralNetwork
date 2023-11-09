@@ -1,10 +1,10 @@
 class_name Network
-extends Reference
+extends RefCounted
 # Written by Variable-ind (https://github.com/Variable-ind)
 
 var matrix := Matrix.new()
 var num_layers: int
-var sizes := PoolIntArray()
+var sizes := PackedInt32Array()
 var weights := Array()
 var biases := Array()  # an array of a bias column matrices
 
@@ -12,7 +12,7 @@ var reward: float = 0
 
 signal activation_changed(layer_idx, activations)
 
-func _init(_sizes: PoolIntArray) -> void:
+func _init(_sizes: PackedInt32Array) -> void:
 	# initializing with random weights and biases
 	num_layers = _sizes.size()
 	sizes = _sizes

@@ -1,10 +1,9 @@
-extends KinematicBody2D
+extends CharacterBody2D
 
 var sizes = [2, 10, 10, 10, 1]  # nodes in the respective layers
 var net: Network
 
 var jump_vel = 250
-var velocity = Vector2.ZERO
 var gravity = 10
 var level: Node2D
 var initial_time: float
@@ -27,10 +26,10 @@ func _ready() -> void:
 	if AiMonitor.next_gen_networks.size() > 0:
 		net = AiMonitor.next_gen_networks.pop_back()
 	else:
-		 net = Network.new(sizes)
+		net = Network.new(sizes)
 	############################################
 
-	$Sprite.modulate = modulation
+	$Sprite2D.modulate = modulation
 
 
 func _process(_delta: float) -> void:
@@ -43,7 +42,8 @@ func _process(_delta: float) -> void:
 		jump()
 	###########################################
 
-	velocity = move_and_slide(velocity)
+	set_velocity(velocity)
+	move_and_slide()
 
 
 func _on_Area2D_area_entered(area: Area2D) -> void:

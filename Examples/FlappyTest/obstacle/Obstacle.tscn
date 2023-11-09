@@ -1,40 +1,36 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=4 format=3 uid="uid://dx4tq70cl238x"]
 
-[ext_resource path="res://Examples/FlappyTest/obstacle/Obstacle.gd" type="Script" id=1]
-[ext_resource path="res://Examples/FlappyTest/obstacle/obstacle.png" type="Texture" id=2]
+[ext_resource type="Script" path="res://Examples/FlappyTest/obstacle/Obstacle.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://b7da6vu0sfakq" path="res://Examples/FlappyTest/obstacle/obstacle.png" id="2"]
 
-[sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 8, 32 )
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(16, 64)
 
 [node name="Obstacle" type="Node2D"]
-script = ExtResource( 1 )
+script = ExtResource("1")
 
-[node name="Sprite" type="Sprite" parent="."]
-position = Vector2( 0, 79 )
-scale = Vector2( 0.641, 21.7812 )
-texture = ExtResource( 2 )
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, 79)
+scale = Vector2(0.641, 21.7812)
+texture = ExtResource("2")
 centered = false
-__meta__ = {
-"_edit_group_": true
-}
 
-[node name="Area2D" type="Area2D" parent="Sprite" groups=["obstacle"]]
+[node name="Area2D" type="Area2D" parent="Sprite2D" groups=["obstacle"]]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite/Area2D"]
-position = Vector2( 8, 32 )
-shape = SubResource( 1 )
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2D/Area2D"]
+position = Vector2(8, 32)
+shape = SubResource("1")
+debug_color = Color(0, 0, 0.917647, 1)
 
-[node name="Sprite2" type="Sprite" parent="."]
-position = Vector2( 0, -1231 )
-scale = Vector2( 0.641, 18.0937 )
-texture = ExtResource( 2 )
+[node name="Sprite2" type="Sprite2D" parent="."]
+position = Vector2(0, -1231)
+scale = Vector2(0.641, 18.0937)
+texture = ExtResource("2")
 centered = false
-__meta__ = {
-"_edit_group_": true
-}
 
 [node name="Area2D" type="Area2D" parent="Sprite2" groups=["obstacle"]]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Sprite2/Area2D"]
-position = Vector2( 8, 32 )
-shape = SubResource( 1 )
+position = Vector2(8, 32)
+shape = SubResource("1")
+debug_color = Color(0, 0, 0.917647, 1)

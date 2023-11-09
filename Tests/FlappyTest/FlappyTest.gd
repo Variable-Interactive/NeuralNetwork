@@ -7,7 +7,7 @@ func _ready() -> void:
 	AiMonitor.start_simulation()
 
 	$CanvasLayer/Interface/Label.text = str("Generation: ", AiMonitor.current_generation)
-	var obstacle = preload("res://Tests/FlappyTest/obstacle/Obstacle.tscn").instance()
+	var obstacle = preload("res://Tests/FlappyTest/obstacle/Obstacle.tscn").instantiate()
 	var point = randi() % 5
 	obstacle.global_position = $Points.get_child(point).global_position
 	$Obstacles.add_child(obstacle)
@@ -15,7 +15,7 @@ func _ready() -> void:
 
 	# generate players
 	for _i in range(AiMonitor.players_per_generation):
-		var player = preload("res://Tests/FlappyTest/AI/FlappyBird.tscn").instance()
+		var player = preload("res://Tests/FlappyTest/AI/FlappyBird.tscn").instantiate()
 		var pos = $PlayerPoint.global_position
 		pos.x = 47
 		player.global_position = pos
@@ -23,7 +23,7 @@ func _ready() -> void:
 
 
 func _on_SpawnTimer_timeout() -> void:
-	var obstacle = preload("res://Tests/FlappyTest/obstacle/Obstacle.tscn").instance()
+	var obstacle = preload("res://Tests/FlappyTest/obstacle/Obstacle.tscn").instantiate()
 	var point = randi() % 5
 	obstacle.global_position = $Points.get_child(point).global_position
 	$Obstacles.add_child(obstacle)

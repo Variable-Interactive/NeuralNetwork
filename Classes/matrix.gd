@@ -1,9 +1,13 @@
 class_name Matrix
-extends Reference
+extends RefCounted
+## Used to get access to different matrix methods
+##
+## Godot does not provide matrix functions so this class exists
 
 var _random := RandomNumberGenerator.new()
 
 
+## Creates a vertical matrix array from the provided [param array]
 func create_vertical(array: Array) -> Array:
 	var matrix = []
 	for item in array.size():
@@ -11,6 +15,7 @@ func create_vertical(array: Array) -> Array:
 	return matrix
 
 
+## Creates an [Array] from the provided [param matrix].
 func de_construct_vertical(matrix: Array) -> Array:
 	var array := []
 	for item in matrix.size():

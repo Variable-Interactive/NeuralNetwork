@@ -1,5 +1,5 @@
 class_name GeneticEvolution
-extends Reference
+extends RefCounted
 # Written by Variable-ind (https://github.com/Variable-ind)
 
 # Adjustable parameters
@@ -42,7 +42,7 @@ func stop_simulation():
 
 func prepere_next_generation() -> Array:
 	# get winners of this generation
-	_current_gen_networks.sort_custom(self, "_sort_networks")
+	_current_gen_networks.sort_custom(Callable(self, "_sort_networks"))
 
 	# These are the winners
 	var winner_1: Network = _current_gen_networks.pop_back()

@@ -9,11 +9,11 @@ var next_gen_networks: Array = []
 var visualizer_popup
 
 func _ready() -> void:
-	visualizer_popup = preload("res://NetworkVisualizer/VisualizerPopup.tscn").instance()
+	visualizer_popup = preload("res://NetworkVisualizer/VisualizerPopup.tscn").instantiate()
 	add_child(visualizer_popup)
 	visualizer_popup.popup_centered()
 	# warning-ignore:return_value_discarded
-	gen.connect("simulation_over", self, "_simulation_over")
+	gen.connect("simulation_over", Callable(self, "_simulation_over"))
 
 
 func player_destroyed(network: Network):

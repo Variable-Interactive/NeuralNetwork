@@ -2,17 +2,17 @@ extends PanelContainer
 
 const SCALE = 1
 
-const LINE_COLOR_POSITIVE = Color.orangered
-const LINE_COLOR_NEGATIVE = Color.blueviolet
+const LINE_COLOR_POSITIVE = Color.ORANGE_RED
+const LINE_COLOR_NEGATIVE = Color.BLUE_VIOLET
 
-const ACTIVATION_COLOR_POSITIVE = Color.white
-const ACTIVATION_COLOR_INACTIVE = Color.black
-const ACTIVATION_COLOR_NEGATIVE = Color.blue  # would appear in 1st layer
+const ACTIVATION_COLOR_POSITIVE = Color.WHITE
+const ACTIVATION_COLOR_INACTIVE = Color.BLACK
+const ACTIVATION_COLOR_NEGATIVE = Color.BLUE  # would appear in 1st layer
 
 var lines = []
 
-onready var layer_container = $"%LayerContainer"
-onready var identifier: ColorRect = $"%identifier"
+@onready var layer_container = $"%LayerContainer"
+@onready var identifier: ColorRect = $"%identifier"
 
 
 func visualize_network(network: Network) -> void:
@@ -21,16 +21,16 @@ func visualize_network(network: Network) -> void:
 	for i in network.sizes:
 		if i > sep:
 			sep = i
-	layer_container.set("custom_constants/separation", max(10, sep * 2))
+	layer_container.set("theme_override_constants/separation", max(10, sep * 2))
 	for x in network.sizes.size():
 		var layer = _generate_layer()
 		for _y in range(network.sizes[x]):
 			_generate_node(layer)
 	# now set weights
-	yield(get_tree(), "idle_frame")
+	await get_tree().process_frame
 	update_weights(network)
 	# warning-ignore:return_value_discarded
-	network.connect("activation_changed", self, "_update_activations")
+	network.connect("activation_changed", Callable(self, "_update_activations"))
 
 
 func update_weights(network: Network):
@@ -42,7 +42,7 @@ func update_weights(network: Network):
 				var to = get_activation_node(layer_number + 1, current_node_idx)
 				var weight = network.weights[layer_number][current_node_idx][prev_node_idx]
 				lines.append([from, to, weight])
-	update()
+	queue_redraw()
 
 
 func get_activation_node(layer_idx, node_idx) -> TextureRect:
@@ -63,26 +63,26 @@ func _update_activations(layer_idx, activations: Array):
 			color.a = abs(activation)
 
 		layer.get_child(node_idx).modulate = color
-	update()
+	queue_redraw()
 
 
 func _generate_layer() -> Node:
-	var layer = preload("res://NetworkVisualizer/Nodes/Layer.tscn").instance()
+	var layer = preload("res://NetworkVisualizer/Nodes/Layer.tscn").instantiate()
 	layer_container.add_child(layer)
 	return layer
 
 
 func _generate_node(layer):
-	var node = preload("res://NetworkVisualizer/Nodes/Node.tscn").instance()
-	node.rect_min_size *= SCALE
+	var node = preload("res://NetworkVisualizer/Nodes/Node.tscn").instantiate()
+	node.custom_minimum_size *= SCALE
 	layer.add_child(node)
 
 
 func _draw() -> void:
 	for line in lines:
 		if line[2] != 0:
-			var start = line[0].rect_global_position + (line[0].rect_size / 2) - rect_global_position
-			var end = line[1].rect_global_position + (line[1].rect_size / 2) - rect_global_position
+			var start = line[0].global_position + (line[0].size / 2) - global_position
+			var end = line[1].global_position + (line[1].size / 2) - global_position
 			var color := LINE_COLOR_POSITIVE
 			if line[2] < 0:
 				color = LINE_COLOR_NEGATIVE

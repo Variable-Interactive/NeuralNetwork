@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends CharacterBody2D
 
 var sizes = [2, 16, 1]  # nodes in the respective layers
 var net: Network
@@ -25,10 +25,10 @@ func _ready() -> void:
 
 	# add this player to observer unit
 	# warning-ignore:return_value_discarded
-	connect("destroyed", AiMonitor, "_player_destroyed")
+	connect("destroyed", Callable(AiMonitor, "_player_destroyed"))
 	############################################
 
-	$Sprite.modulate = Color(randf(), randf(), randf(), 1)
+	$Sprite2D.modulate = Color(randf(), randf(), randf(), 1)
 
 
 func _process(_delta: float) -> void:
@@ -41,7 +41,9 @@ func _process(_delta: float) -> void:
 		jump()
 	###########################################
 
-	velocity = move_and_slide(velocity)
+	set_velocity(velocity)
+	move_and_slide()
+	velocity = velocity
 
 
 func _on_Area2D_area_entered(area: Area2D) -> void:
