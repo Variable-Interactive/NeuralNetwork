@@ -21,11 +21,9 @@ func _ready() -> void:
 	level = get_tree().current_scene
 
 	########## Initializing the AI Player ###########
-	# If this is the first generation
-	if GeneticEvolution.generation_networks.size() == 0:
+	if GeneticEvolution.generation_networks.size() == 0:  # If this is the first generation
 		ai = Network.new(LAYER_NODES)
-	# If we have a network provided by genetic algorithm
-	else:
+	else:  # If we have a network provided by genetic algorithm then use it instead
 		ai = GeneticEvolution.generation_networks.pop_back()
 	# you can add a visualizer as well if you want
 	ai.add_visualizer(GeneticEvolution.visualizer_popup.visualizer_container, modulation)

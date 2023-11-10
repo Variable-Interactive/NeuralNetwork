@@ -19,7 +19,7 @@ func _init(_sizes: PackedInt32Array) -> void:
 	# initializing with random weights and biases
 	num_layers = _sizes.size()
 	sizes = _sizes
-	for layer in range(1, sizes.size()): # 0th layer will have no bias/weights so we start with 1
+	for layer in range(1, sizes.size()):  # 0th layer will have no bias/weights so we start with 1
 		var size_x = sizes[layer - 1]  # number of columns (no of neurons in previous layer)
 		var size_y = sizes[layer]  # number of rows (no of neurons in current layer)
 		biases.append(Matrix.new(size_y, 1, true))
@@ -61,7 +61,9 @@ func add_visualizer(visualizer_parent: Node, color := Color.WHITE):
 	if _visualizer:
 		print("already has a visualizer added")
 		return
-	_visualizer = preload("res://addons/NeuralNetwork/NetworkVisualizer/NetworkVisualizer.tscn").instantiate()
+	_visualizer = (
+		preload("res://addons/NeuralNetwork/NetworkVisualizer/NetworkVisualizer.tscn").instantiate()
+		)
 	visualizer_parent.add_child(_visualizer)
 	_visualizer.identifier.color = color
 	_visualizer.visualize_network(self)

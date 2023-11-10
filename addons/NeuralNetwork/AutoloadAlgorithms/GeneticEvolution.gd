@@ -26,7 +26,9 @@ var visualizer_popup
 
 
 func _ready() -> void:
-	visualizer_popup = preload("res://addons/NeuralNetwork/NetworkVisualizer/VisualizerPopup.tscn").instantiate()
+	visualizer_popup = (
+		preload("res://addons/NeuralNetwork/NetworkVisualizer/VisualizerPopup.tscn").instantiate()
+	)
 	add_child(visualizer_popup)
 	visualizer_popup.popup_centered()
 
@@ -72,18 +74,16 @@ func _prepere_next_generation():
 		_last_winners_b = winner_2
 
 	generation_networks.clear()
-	var _added_biases = [] # to check if a network already exists
+	var _added_biases = []  # to check if a network already exists
 	for i in range(players_per_generation):
 		var new_network: Network
-		if i < 1: # keep 1 best from the last generation
+		if i < 1:  # keep 1 best from the last generation
 			new_network = _crossover(winner_1)
 		else:
 			# Make a crossover
 			new_network = _crossover(winner_1, winner_2)
 			var can_mutate = randf()
-			if (
-				(can_mutate < PERCENTAGE_MUTATED_NETWORKS) # If we need mutation not crossover
-			):
+			if can_mutate < PERCENTAGE_MUTATED_NETWORKS:  # If we need mutation not crossover
 				new_network = _mutate(winner_1)
 		_added_biases.append(new_network.biases)
 		generation_networks.append(new_network)
@@ -119,12 +119,12 @@ func _mutate(net: Network) -> Network:
 		new_network.weights[layer] = net.weights[layer].copy()
 		var should_mutate_bias = _random.randf()
 		var should_mutate_weight = _random.randf()
-		if should_mutate_bias <= MUTATION_DEGREE: # mutate this layer's biases
+		if should_mutate_bias <= MUTATION_DEGREE:  # mutate this layer's biases
 			var rand_mat = Matrix.new(
 				net.biases[layer].no_of_rows, net.biases[layer].no_of_columns, true
 			)
 			new_network.biases[layer] = net.biases[layer].add(rand_mat)
-		if should_mutate_weight <= MUTATION_DEGREE: # don't mutate this layer's weights
+		if should_mutate_weight <= MUTATION_DEGREE:  # don't mutate this layer's weights
 			var rand_mat = Matrix.new(
 				net.weights[layer].no_of_rows, net.weights[layer].no_of_columns, true
 			)

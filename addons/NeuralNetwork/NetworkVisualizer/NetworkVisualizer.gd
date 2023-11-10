@@ -43,7 +43,9 @@ func update_weights(network: Network):
 				for prev_node_idx in range(network.weights[layer_number].no_of_columns):
 					var from_node = _get_activation_node(layer_number, prev_node_idx)
 					var to_node = _get_activation_node(layer_number + 1, current_node_idx)
-					var weight = network.weights[layer_number].get_index(current_node_idx, prev_node_idx)
+					var weight = network.weights[layer_number].get_index(
+						current_node_idx, prev_node_idx
+					)
 					lines.append([from_node, to_node, weight])
 		queue_redraw()
 
@@ -60,16 +62,12 @@ func _update_activations(layer_idx, activations: Matrix):
 		var color = ACTIVATION_COLOR_POSITIVE
 		if activation < 0:
 			color = lerp(
-				ACTIVATION_COLOR_INACTIVE,
-				ACTIVATION_COLOR_NEGATIVE,
-				clamp(abs(activation), 0, 1)
-				)
+				ACTIVATION_COLOR_INACTIVE, ACTIVATION_COLOR_NEGATIVE, clamp(abs(activation), 0, 1)
+			)
 		else:
 			color = lerp(
-				ACTIVATION_COLOR_INACTIVE,
-				ACTIVATION_COLOR_POSITIVE,
-				clamp(abs(activation), 0, 1)
-				)
+				ACTIVATION_COLOR_INACTIVE, ACTIVATION_COLOR_POSITIVE, clamp(abs(activation), 0, 1)
+			)
 
 		layer.get_child(row - 1).self_modulate = color
 		layer.get_child(row - 1).get_child(0).self_modulate = color.inverted()

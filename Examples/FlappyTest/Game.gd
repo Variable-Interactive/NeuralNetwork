@@ -4,6 +4,7 @@ var obstacles = []
 var obstacle_scene = preload("res://Examples/FlappyTest/Obstacle/Obstacle.tscn")
 var player_scene = preload("res://Examples/FlappyTest/Player/FlappyBird.tscn")
 
+
 func _ready() -> void:
 	# show generation number (not really needed)
 	$CanvasLayer/Interface/Label.text = str("Generation: ", GeneticEvolution.current_generation)
@@ -20,7 +21,7 @@ func _ready() -> void:
 
 func spawn_obstacle() -> void:
 	# Spawn obstacles after regular intervals
-	var obstacle =obstacle_scene.instantiate()
+	var obstacle = obstacle_scene.instantiate()
 	var point = randi() % 5
 	obstacle.global_position = $Points.get_child(point).global_position
 	$Obstacles.add_child(obstacle)
@@ -42,5 +43,3 @@ func _on_force_next_generation_pressed() -> void:
 
 func _on_Visualize_pressed() -> void:
 	GeneticEvolution.visualizer_popup.popup_centered()
-
-
