@@ -34,7 +34,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	#### Setting inputs to the NeuralNetwork ##
-	var input = _get_input_points()  # geting the inputs
+	var input = _get_input_points()  # getting the inputs
 	var decision = ai.feedforward(input)  # feeding the inputs
 	var should_jump = decision[0] > 0.5
 	###########################################

@@ -34,13 +34,13 @@ ai.add_visualizer(GeneticEvolution.visualizer_popup.visualizer_container, modula
 4. To give input to the AI, so that it can process it and take decision use this code (variable names can be different)
    ```
    #### Setting inputs to the NeuralNetwork ##
-	var input = _get_input_points()  # geting the inputs
+	var input = _get_input_points()  # getting the inputs
 	var decision = ai.feedforward(input)  # feeding the inputs
 	var should_jump = decision[0] > 0.5
 	###########################################
    ```
    - The `input` is an array of all inputs the player requires (in float form) to make an informed decision. e.g in case of game flappy bird input can be `[x-coordinate of obstacle opening, y-coordinate of obstacle opening]`
-   - The ai will generate an array of `decision` with each element having values between 0 and 1 (In the example the ai only had to decide wether to jump or not so the `decision` contains only one element). We compared it with the jumping threshold (set to 0.5). if `should_jump` comes out to be `true`, the player jumps.
+   - The ai will generate an array of `decision` with each element having values between 0 and 1 (In the example the ai only had to decide whether to jump or not so the `decision` contains only one element). We compared it with the jumping threshold (set to 0.5). if `should_jump` comes out to be `true`, the player jumps.
 5. Obviously the AI won't work on the 1st attempt. Here's where the GeneticEvolution comes in. when the player fails, submit it's network to the GeneticEvolution
 ```
 ########### remove Visualizer ############
@@ -51,7 +51,7 @@ ai.give_reward(Time.get_ticks_msec() - initial_time)
 GeneticEvolution.submit_network(ai)
 ###########################################
 ```
-  - In this example the reward was based on survival time so it makes sence to calculate it at the end of the run, but you can give it rewards ar other places as well. To give reward to Network use `func give_reward(amount: int)`. To deduct rewards, use negative sign.
+  - In this example the reward was based on survival time so it makes sense to calculate it at the end of the run, but you can give it rewards ar other places as well. To give reward to Network use `func give_reward(amount: int)`. To deduct rewards, use negative sign.
 6. Instance the players when the scene is run using
 ```
 # generate amount of players required by players GeneticEvolution algorithm
