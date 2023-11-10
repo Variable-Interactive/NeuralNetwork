@@ -34,25 +34,26 @@ func visualize_network(network: Network) -> void:
 
 
 func update_weights(network: Network):
-	lines.clear()
-	for layer_number in network.weights.size():
-		for current_node_idx in network.weights[layer_number].no_of_columns:
-			for prev_node_idx in network.weights[layer_number].no_of_rows:
-				var from = get_activation_node(layer_number, prev_node_idx)
-				var to = get_activation_node(layer_number + 1, current_node_idx)
-				var weight = network.weights[layer_number].get_index(current_node_idx, prev_node_idx)
-				lines.append([from, to, weight])
-	queue_redraw()
+	if visible:
+		lines.clear()
+		for layer_number in network.weights.size():
+			for current_node_idx in range(network.weights[layer_number].no_of_rows):
+				for prev_node_idx in range(network.weights[layer_number].no_of_columns):
+					var from_node = _get_activation_node(layer_number, prev_node_idx)
+					var to_node = _get_activation_node(layer_number + 1, current_node_idx)
+					var weight = network.weights[layer_number].get_index(current_node_idx, prev_node_idx)
+					lines.append([from_node, to_node, weight])
+		queue_redraw()
 
 
-func get_activation_node(layer_idx, node_idx) -> TextureRect:
+func _get_activation_node(layer_idx, node_idx) -> TextureRect:
 	var layer = layer_container.get_child(layer_idx)
 	return layer.get_child(node_idx)
 
 
-func _update_activations(layer_idx, activations: Array):
-	for node_idx in activations.size():
-		var activation = activations[node_idx][0]
+func _update_activations(layer_idx, activations: Matrix):
+	for row in range(activations.no_of_rows):
+		var activation = activations.get_index(row, 0)
 		var layer = layer_container.get_child(layer_idx)
 		var color = ACTIVATION_COLOR_POSITIVE
 		if activation < 0:
@@ -62,7 +63,7 @@ func _update_activations(layer_idx, activations: Array):
 		else:
 			color.a = abs(activation)
 
-		layer.get_child(node_idx).modulate = color
+		layer.get_child(row - 1).modulate = color
 	queue_redraw()
 
 
@@ -80,10 +81,14 @@ func _generate_node(layer):
 
 func _draw() -> void:
 	for line in lines:
+		var start = line[0].global_position + (line[0].size / 2) - global_position
+		var end = line[1].global_position + (line[1].size / 2) - global_position
+		var color := LINE_COLOR_POSITIVE
+		var width = abs(line[2]) * SCALE * 2
 		if line[2] != 0:
-			var start = line[0].global_position + (line[0].size / 2) - global_position
-			var end = line[1].global_position + (line[1].size / 2) - global_position
-			var color := LINE_COLOR_POSITIVE
 			if line[2] < 0:
 				color = LINE_COLOR_NEGATIVE
-			draw_line(start, end, color, abs(line[2]) * SCALE * 2)
+		else :
+			color = Color.BLACK
+			width = 1
+		draw_line(start, end, color, width)

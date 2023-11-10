@@ -1,48 +1,51 @@
 extends CharacterBody2D
 
-var sizes = [2, 10, 10, 10, 1]  # nodes in the respective layers
+var sizes = [2, 10, 10, 1]  # nodes in the respective layers
 var net: Network
 
 var jump_vel = 250
 var gravity = 10
 var level: Node2D
-var initial_time: float
+var initial_time: int
 
 var modulation: Color
 
 var visualizer
 
+
 func jump():
 	$JumpRecoil.start()
 	velocity.y = -jump_vel
+	# give reward for jumping
+	net.give_reward(1)
 
 
 func _ready() -> void:
 	initial_time = Time.get_ticks_msec()
 	level = get_tree().current_scene
 
-	########## The AI Initialization ###########
-	# set inheritance if any is assigned by the genetic algorithm
-	if AiMonitor.next_gen_networks.size() > 0:
-		net = AiMonitor.next_gen_networks.pop_back()
-	else:
+	########## Initializing the AI Player ###########
+	# If this is the first generation
+	if GeneticEvolution.generation_networks.size() == 0:
 		net = Network.new(sizes)
-	############################################
+	# If we have a network provided by genetic algorithm
+	else:
+		net = GeneticEvolution.generation_networks.pop_back()
+	#################################################
 
 	$Sprite2D.modulate = modulation
 
 
 func _process(_delta: float) -> void:
-	velocity.y += gravity
-
 	#### Setting inputs to the NeuralNetwork ##
-	var input = _get_input_points()
-	var res = net.feedforward(input)
-	if res[0] > 0.5 and $JumpRecoil.is_stopped():
-		jump()
+	var input = _get_input_points()  # geting the inputs
+	var decision = net.feedforward(input)  # feeding the inputs
+	var should_jump = decision[0] > 0.5
 	###########################################
 
-	set_velocity(velocity)
+	velocity.y += gravity
+	if should_jump and $JumpRecoil.is_stopped():
+		jump()
 	move_and_slide()
 
 
@@ -54,10 +57,10 @@ func _on_Area2D_area_entered(area: Area2D) -> void:
 func _exit_tree() -> void:
 	########### remove Visualizer ############
 	visualizer.queue_free()
-	############ Grant a reward ###############
-	net.reward = Time.get_ticks_msec() - initial_time
+	############ Grant a reward based on distance ###############
+	net.give_reward(Time.get_ticks_msec() - initial_time)
 	# Add to the monitor
-	AiMonitor.player_destroyed(net)
+	GeneticEvolution.submit_network(net)
 	###########################################
 
 

@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://b8ic3kfnaq2wk"]
+[gd_scene load_steps=3 format=3 uid="uid://b8ic3kfnaq2wk"]
 
 [ext_resource type="Script" path="res://Examples/FlappyTest/FlappyTest.gd" id="1"]
-[ext_resource type="FontFile" path="res://Examples/fonts/Roboto.tres" id="2"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(432, 42.5)
@@ -65,9 +64,10 @@ grow_vertical = 2
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
-theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 100
+text = "adadas"
 
-[node name="Button" type="Button" parent="CanvasLayer/Interface"]
+[node name="ForceNextGeneration" type="Button" parent="CanvasLayer/Interface"]
 layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
@@ -90,5 +90,5 @@ grow_horizontal = 0
 text = "Visualize"
 
 [connection signal="timeout" from="SpawnTimer" to="." method="_on_SpawnTimer_timeout"]
-[connection signal="pressed" from="CanvasLayer/Interface/Button" to="." method="_on_Button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Interface/ForceNextGeneration" to="." method="_on_force_next_generation_pressed"]
 [connection signal="pressed" from="CanvasLayer/Interface/Visualize" to="." method="_on_Visualize_pressed"]

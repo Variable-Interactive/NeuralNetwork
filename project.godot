@@ -16,7 +16,7 @@ config/features=PackedStringArray("4.1")
 
 [autoload]
 
-AiMonitor="*res://Autoload/AIMonitor.gd"
+GeneticEvolution="*res://NeuralNetwork/AutoloadAlgorithms/GeneticEvolution.gd"
 
 [display]
 
