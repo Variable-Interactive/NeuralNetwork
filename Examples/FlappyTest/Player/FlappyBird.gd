@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-const LAYER_NODES = [2, 10, 10, 1]  # nodes in the respective layers of neural network
+const LAYER_NODES = [2, 10, 10, 10, 10, 1]  # nodes in the respective layers of neural network
 var ai: Network
 
 var jump_vel = 250

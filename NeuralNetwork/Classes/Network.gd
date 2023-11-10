@@ -43,16 +43,11 @@ func feedforward(activation_array: Array[float]) -> Array:
 	emit_signal("activation_changed", 0, activation_matrix)
 
 	# activation array is the set of activation numbers of input layer
-	var i = 0
 	for layer in num_layers - 1:
 		var b = biases[layer]
 		var w = weights[layer]
 		# find the activation numbers for the next layer
-		if i == 0:
-			activation_matrix = w.dot(activation_matrix).add(b).sigmoid()
-		else:
-			activation_matrix = w.dot(activation_matrix).add(b)
-		i += 1
+		activation_matrix = w.dot(activation_matrix).add(b).sigmoid()
 		emit_signal("activation_changed", layer + 1, activation_matrix)
 	# now the activation array consist of output activation
 	return activation_matrix.to_array()

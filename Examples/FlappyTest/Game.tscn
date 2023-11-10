@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://b8ic3kfnaq2wk"]
+[gd_scene load_steps=4 format=3 uid="uid://b8ic3kfnaq2wk"]
 
 [ext_resource type="Script" path="res://Examples/FlappyTest/Game.gd" id="1_80riy"]
+[ext_resource type="Texture2D" uid="uid://l04islombetp" path="res://Examples/FlappyTest/Player/Background.png" id="2_k6ek1"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(432, 42.5)
@@ -61,34 +62,39 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="Label" type="Label" parent="CanvasLayer/Interface"]
+self_modulate = Color(1, 1, 1, 0.329412)
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_font_sizes/font_size = 100
-text = "adadas"
+vertical_alignment = 2
 
-[node name="ForceNextGeneration" type="Button" parent="CanvasLayer/Interface"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Interface"]
 layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -560.0
-offset_top = 571.0
-offset_right = -420.0
-offset_bottom = 591.0
+offset_left = 968.0
+offset_top = 6.0
+offset_right = 1133.0
+offset_bottom = 72.0
+
+[node name="ForceNextGeneration" type="Button" parent="CanvasLayer/Interface/VBoxContainer"]
+layout_mode = 2
 text = "Forced regeneration"
 
-[node name="Visualize" type="Button" parent="CanvasLayer/Interface"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -353.0
-offset_top = 571.0
-offset_right = -213.0
-offset_bottom = 602.0
-grow_horizontal = 0
+[node name="Visualize" type="Button" parent="CanvasLayer/Interface/VBoxContainer"]
+layout_mode = 2
 text = "Visualize"
 
+[node name="ParallaxBackground" type="ParallaxBackground" parent="CanvasLayer"]
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/ParallaxBackground"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_k6ek1")
+expand_mode = 1
+
 [connection signal="timeout" from="SpawnTimer" to="." method="_on_SpawnTimer_timeout"]
-[connection signal="pressed" from="CanvasLayer/Interface/ForceNextGeneration" to="." method="_on_force_next_generation_pressed"]
-[connection signal="pressed" from="CanvasLayer/Interface/Visualize" to="." method="_on_Visualize_pressed"]
+[connection signal="pressed" from="CanvasLayer/Interface/VBoxContainer/ForceNextGeneration" to="." method="_on_force_next_generation_pressed"]
+[connection signal="pressed" from="CanvasLayer/Interface/VBoxContainer/Visualize" to="." method="_on_Visualize_pressed"]

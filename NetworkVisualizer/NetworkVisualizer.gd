@@ -1,10 +1,10 @@
 extends PanelContainer
 
-const SCALE = 1
+const SCALE = 2
 
 const NODE_RADIUS := 6
-const LINE_COLOR_POSITIVE := Color.ORANGE_RED
-const LINE_COLOR_NEGATIVE := Color.BLUE_VIOLET
+const LINE_COLOR_POSITIVE := Color.RED
+const LINE_COLOR_NEGATIVE := Color.BLUE
 
 const ACTIVATION_COLOR_POSITIVE := Color.WHITE
 const ACTIVATION_COLOR_INACTIVE := Color.BLACK
@@ -23,7 +23,7 @@ func visualize_network(network: Network) -> void:
 	for i in network.sizes:
 		if i > sep:
 			sep = i
-	layer_container.set("theme_override_constants/separation", max(10, sep * 2))
+	layer_container.set("theme_override_constants/separation", max(10, sep * 4))
 	for x in network.sizes.size():
 		var layer = _generate_layer()
 		for _y in range(network.sizes[x]):
@@ -59,13 +59,21 @@ func _update_activations(layer_idx, activations: Matrix):
 		var layer = layer_container.get_child(layer_idx)
 		var color = ACTIVATION_COLOR_POSITIVE
 		if activation < 0:
-			color = ACTIVATION_COLOR_NEGATIVE
-		if is_equal_approx(activation, 0):
-			color = ACTIVATION_COLOR_INACTIVE
+			color = lerp(
+				ACTIVATION_COLOR_INACTIVE,
+				ACTIVATION_COLOR_NEGATIVE,
+				clamp(abs(activation), 0, 1)
+				)
 		else:
-			color.a = abs(activation)
+			color = lerp(
+				ACTIVATION_COLOR_INACTIVE,
+				ACTIVATION_COLOR_POSITIVE,
+				clamp(abs(activation), 0, 1)
+				)
 
-		layer.get_child(row - 1).modulate = color
+		layer.get_child(row - 1).self_modulate = color
+		layer.get_child(row - 1).get_child(0).self_modulate = color.inverted()
+		layer.get_child(row - 1).get_child(0).text = str(snappedf(activation, 0.1))
 	queue_redraw()
 
 
@@ -82,6 +90,12 @@ func _generate_node(layer):
 	node_indicator.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	node_indicator.custom_minimum_size = 2 * Vector2.ONE * NODE_RADIUS * SCALE
 	node_indicator.texture = node_texture
+	var label := Label.new()
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.set("theme_override_font_sizes/font_size", 6 * SCALE)
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	node_indicator.add_child(label)
 	layer.add_child(node_indicator)
 
 
@@ -89,12 +103,14 @@ func _draw() -> void:
 	for line in lines:
 		var start = line[0].global_position + (line[0].size / 2) - global_position
 		var end = line[1].global_position + (line[1].size / 2) - global_position
-		var color := LINE_COLOR_POSITIVE
-		var width = abs(line[2]) * SCALE * 2
-		if line[2] != 0:
-			if line[2] < 0:
-				color = LINE_COLOR_NEGATIVE
-		else :
+		var sigmoid_weight = sigmoid(line[2])
+		var color = lerp(LINE_COLOR_NEGATIVE, LINE_COLOR_POSITIVE, sigmoid_weight)
+		var width = sigmoid_weight * SCALE * 2
+		if is_equal_approx(sigmoid_weight, 0):
 			color = Color.BLACK
 			width = 1
 		draw_line(start, end, color, width)
+
+
+func sigmoid(value: float) -> float:
+	return 1.0 / (1.0 + exp(-value))

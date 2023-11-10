@@ -4,15 +4,16 @@ extends Node
 signal simulation_over(next_gen)
 
 # Adjustable parameters
-const CROSSOVER_EXTENT = 0.5  # 1 (means only parent 1) to 0 (means only parent 1)
-const MAX_CROSSOVER_SPLITS: int = 1  # the max amount of splits a network can have
+## the max amount of splits a network can have during crossover
+const MAX_CROSSOVER_SPLITS: int = 1
 
-const PERCENTAGE_MUTATION = 0.5  # 0 to 1 (how much mutatated networks in next generation)
-const MUTATION_DEGREE = 0.5  # values from 1 (network is fully mutated) to 0 (no mutation in network)
+const PERCENTAGE_MUTATED_NETWORKS = 0.5  ## 0 to 1 (how much mutatated networks in next generation)
+## values from 1 (network is fully mutated) to 0 (no mutation in network)
+const MUTATION_DEGREE = 0.5
 
-var players_per_generation: int = 10
+var players_per_generation: int = 20
 
-# parameters you need not bother with
+# Don't mess with the variables below
 var current_generation: int = 0
 var _random := RandomNumberGenerator.new()
 var _last_winners_a: Network  # used to compare previous networks
@@ -81,7 +82,7 @@ func _prepere_next_generation():
 			new_network = _crossover(winner_1, winner_2)
 			var can_mutate = randf()
 			if (
-				(can_mutate < PERCENTAGE_MUTATION) # If we need mutation not crossover
+				(can_mutate < PERCENTAGE_MUTATED_NETWORKS) # If we need mutation not crossover
 			):
 				new_network = _mutate(winner_1)
 		_added_biases.append(new_network.biases)
@@ -101,7 +102,7 @@ func _crossover(parent_1: Network, parent_2: Network = null) -> Network:
 	var current_split = 0
 	for i in range(new_network.num_layers - 1):  # total biases/weights are 1 less than layer count.
 		var val_cross = _random.randf()
-		if val_cross > 0.5:  # Heads
+		if val_cross > 0.5:  # 50-50 chance of split for every layer
 			if current_split < MAX_CROSSOVER_SPLITS:
 				# interchange corresponding chromosomes
 				new_network.biases[i] = parent_2.biases[i].copy()
@@ -122,12 +123,12 @@ func _mutate(net: Network) -> Network:
 			var rand_mat = Matrix.new(
 				net.biases[layer].no_of_rows, net.biases[layer].no_of_columns, true
 			)
-			new_network.biases[layer] = net.biases[layer].multiply_corresponding(rand_mat, false)
+			new_network.biases[layer] = net.biases[layer].add(rand_mat)
 		if should_mutate_weight <= MUTATION_DEGREE: # don't mutate this layer's weights
 			var rand_mat = Matrix.new(
 				net.weights[layer].no_of_rows, net.weights[layer].no_of_columns, true
 			)
-			new_network.weights[layer] = net.weights[layer].multiply_corresponding(rand_mat, false)
+			new_network.weights[layer] = net.weights[layer].add(rand_mat)
 	return new_network
 
 
