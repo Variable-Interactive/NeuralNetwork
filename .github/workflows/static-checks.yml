@@ -1,0 +1,30 @@
+name: Static Checks 📊
+on:
+  push:
+  pull_request:
+    paths:
+      - "NeuralNetwork/**"
+      - "NetworkVisualizer/**"
+      - "Examples/**"
+
+concurrency:
+  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-static
+  cancel-in-progress: true
+
+jobs:
+  static-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install gdtoolkit
+        run: pip3 install "gdtoolkit==4.*"
+      - name: Formatting checks
+        run: gdformat --diff .
+      - name: Linting checks
+        run: gdlint .
+      - name: Spell checks via codespell
+        uses: codespell-project/actions-codespell@v2
+        with:
+          skip: ./addons,*.po
+          ignore_words_list: chello,doubleclick,Manuel
