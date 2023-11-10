@@ -1,12 +1,12 @@
 [gd_scene load_steps=3 format=3 uid="uid://b8ic3kfnaq2wk"]
 
-[ext_resource type="Script" path="res://Examples/FlappyTest/FlappyTest.gd" id="1"]
+[ext_resource type="Script" path="res://Examples/FlappyTest/Game.gd" id="1_80riy"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(432, 42.5)
 
 [node name="FlappyTest" type="Node2D"]
-script = ExtResource("1")
+script = ExtResource("1_80riy")
 
 [node name="SpawnTimer" type="Timer" parent="."]
 wait_time = 3.0
@@ -17,7 +17,7 @@ autostart = true
 [node name="Players" type="Node2D" parent="."]
 
 [node name="PlayerPoint" type="Marker2D" parent="."]
-position = Vector2(1097, 283)
+position = Vector2(55, 283)
 
 [node name="Points" type="Node2D" parent="."]
 

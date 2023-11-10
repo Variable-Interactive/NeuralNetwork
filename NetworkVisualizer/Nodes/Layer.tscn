@@ -1,5 +1,0 @@
-[gd_scene format=2]
-
-[node name="Layer" type="VBoxContainer"]
-offset_bottom = 600.0
-alignment = 1

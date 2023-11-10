@@ -2,6 +2,8 @@ class_name Network
 extends RefCounted
 # Written by Variable-ind (https://github.com/Variable-ind)
 
+signal activation_changed(layer_idx, activations)
+
 var num_layers: int
 var sizes := PackedInt32Array()
 var weights: Array[Matrix]  ## an array of weight square matrices
@@ -10,7 +12,7 @@ var biases: Array[Matrix]  ## an array of bias column matrices
 ## Variable for reward based training
 var reward: float = 0
 
-signal activation_changed(layer_idx, activations)
+var _visualizer: Node
 
 
 func _init(_sizes: PackedInt32Array) -> void:
@@ -24,7 +26,7 @@ func _init(_sizes: PackedInt32Array) -> void:
 		weights.append(Matrix.new(size_y, size_x, true))
 
 
-func feedforward(activation_array: Array) -> Array:
+func feedforward(activation_array: Array[float]) -> Array:
 	# A failsafe
 	if activation_array.size() != sizes[0]:
 		printerr("Inputs are not equal to first layer nodes")
@@ -58,3 +60,18 @@ func feedforward(activation_array: Array) -> Array:
 
 func give_reward(amount: int):
 	reward += amount
+
+
+func add_visualizer(visualizer_parent: Node, color := Color.WHITE):
+	if _visualizer:
+		print("already has a visualizer added")
+		return
+	_visualizer = preload("res://NetworkVisualizer/NetworkVisualizer.tscn").instantiate()
+	visualizer_parent.add_child(_visualizer)
+	_visualizer.identifier.color = color
+	_visualizer.visualize_network(self)
+
+
+func destroy_visualizer():
+	if _visualizer:
+		_visualizer.queue_free()

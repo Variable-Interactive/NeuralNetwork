@@ -2,14 +2,16 @@ extends PanelContainer
 
 const SCALE = 1
 
-const LINE_COLOR_POSITIVE = Color.ORANGE_RED
-const LINE_COLOR_NEGATIVE = Color.BLUE_VIOLET
+const NODE_RADIUS := 6
+const LINE_COLOR_POSITIVE := Color.ORANGE_RED
+const LINE_COLOR_NEGATIVE := Color.BLUE_VIOLET
 
-const ACTIVATION_COLOR_POSITIVE = Color.WHITE
-const ACTIVATION_COLOR_INACTIVE = Color.BLACK
-const ACTIVATION_COLOR_NEGATIVE = Color.BLUE  # would appear in 1st layer
+const ACTIVATION_COLOR_POSITIVE := Color.WHITE
+const ACTIVATION_COLOR_INACTIVE := Color.BLACK
+const ACTIVATION_COLOR_NEGATIVE := Color.BLUE  # would appear in 1st layer
 
 var lines = []
+var node_texture = preload("res://NetworkVisualizer/Assets/Node.png")
 
 @onready var layer_container = $"%LayerContainer"
 @onready var identifier: ColorRect = $"%identifier"
@@ -68,15 +70,19 @@ func _update_activations(layer_idx, activations: Matrix):
 
 
 func _generate_layer() -> Node:
-	var layer = preload("res://NetworkVisualizer/Nodes/Layer.tscn").instantiate()
+	var layer = VBoxContainer.new()
+	layer.alignment = BoxContainer.ALIGNMENT_CENTER
 	layer_container.add_child(layer)
 	return layer
 
 
 func _generate_node(layer):
-	var node = preload("res://NetworkVisualizer/Nodes/Node.tscn").instantiate()
-	node.custom_minimum_size *= SCALE
-	layer.add_child(node)
+	var node_indicator = TextureRect.new()
+	node_indicator.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	node_indicator.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	node_indicator.custom_minimum_size = 2 * Vector2.ONE * NODE_RADIUS * SCALE
+	node_indicator.texture = node_texture
+	layer.add_child(node_indicator)
 
 
 func _draw() -> void:

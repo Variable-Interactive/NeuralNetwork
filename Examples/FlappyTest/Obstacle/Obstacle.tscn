@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://dx4tq70cl238x"]
 
-[ext_resource type="Script" path="res://Examples/FlappyTest/obstacle/Obstacle.gd" id="1"]
-[ext_resource type="Texture2D" uid="uid://b7da6vu0sfakq" path="res://Examples/FlappyTest/obstacle/obstacle.png" id="2"]
+[ext_resource type="Script" path="res://Examples/FlappyTest/Obstacle/Obstacle.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://b7da6vu0sfakq" path="res://Examples/FlappyTest/Obstacle/obstacle.png" id="2"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(16, 64)

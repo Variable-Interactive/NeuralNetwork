@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://4a3g18r4eq4u"]
+
+[ext_resource type="Script" path="res://Examples/FlappyTest/Player/FlappyBird.gd" id="1_w3abg"]
+[ext_resource type="Texture2D" uid="uid://cci27kop3mmhq" path="res://Examples/FlappyTest/Player/Skin.png" id="2_k8yk6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hyww5"]
+size = Vector2(32, 32)
+
+[node name="FlappyBird" type="CharacterBody2D"]
+script = ExtResource("1_w3abg")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("RectangleShape2D_hyww5")
+
+[node name="JumpRecoil" type="Timer" parent="."]
+wait_time = 0.2
+one_shot = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_k8yk6")
+hframes = 2
+frame = 1
+
+[node name="Sprite2D" type="Sprite2D" parent="Sprite2D"]
+texture = ExtResource("2_k8yk6")
+hframes = 2
+
+[connection signal="area_entered" from="Area2D" to="." method="_on_Area2D_area_entered"]

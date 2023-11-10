@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6rinmr0r0k7s"
-path="res://.godot/imported/Face.png-ece576f2e451371775a0cb57ebaa37b7.ctex"
+uid="uid://cci27kop3mmhq"
+path="res://.godot/imported/Skin.png-dd56f55e532cf0e507bb2b8e3641e817.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Examples/FlappyTest/AI/Face.png"
-dest_files=["res://.godot/imported/Face.png-ece576f2e451371775a0cb57ebaa37b7.ctex"]
+source_file="res://Examples/FlappyTest/Player/Skin.png"
+dest_files=["res://.godot/imported/Skin.png-dd56f55e532cf0e507bb2b8e3641e817.ctex"]
 
 [params]
 
