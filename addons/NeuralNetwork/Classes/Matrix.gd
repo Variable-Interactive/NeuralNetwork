@@ -5,9 +5,6 @@ extends RefCounted
 ## Godot does not provide matrix functions so this class exists
 
 var matrix_array: Array[Array]
-var _random := RandomNumberGenerator.new()
-var _initialized := false
-
 var no_of_rows:  ## making it kinda write protected
 	set(value):
 		if !_initialized:
@@ -16,6 +13,9 @@ var no_of_columns:  ## making it kinda write protected
 	set(value):
 		if !_initialized:
 			no_of_columns = value
+
+var _random := RandomNumberGenerator.new()
+var _initialized := false
 
 
 func _init(_rows: int, _columns: int, random := false) -> void:

@@ -14,15 +14,14 @@ const MUTATION_DEGREE = 0.5
 var players_per_generation: int = 20
 
 # Don't mess with the variables below
+var visualizer_popup
 var current_generation: int = 0
+var generation_networks: Array = []
 var _random := RandomNumberGenerator.new()
 var _last_winners_a: Network  # used to compare previous networks
 var _last_winners_b: Network  # used to compare previous networks
 var _dead: int = 0
 var _submitted_gen_networks = []
-
-var generation_networks: Array = []
-var visualizer_popup
 
 
 func _ready() -> void:
@@ -74,7 +73,7 @@ func _prepere_next_generation():
 		_last_winners_b = winner_2
 
 	generation_networks.clear()
-	var _added_biases = []  # to check if a network already exists
+	var added_biases = []  # to check if a network already exists
 	for i in range(players_per_generation):
 		var new_network: Network
 		if i < 1:  # keep 1 best from the last generation
@@ -85,7 +84,7 @@ func _prepere_next_generation():
 			var can_mutate = randf()
 			if can_mutate < PERCENTAGE_MUTATED_NETWORKS:  # If we need mutation not crossover
 				new_network = _mutate(winner_1)
-		_added_biases.append(new_network.biases)
+		added_biases.append(new_network.biases)
 		generation_networks.append(new_network)
 
 
@@ -114,7 +113,8 @@ func _crossover(parent_1: Network, parent_2: Network = null) -> Network:
 func _mutate(net: Network) -> Network:
 	_random.randomize()
 	var new_network: Network = Network.new(net.sizes)
-	for layer in range(new_network.num_layers - 1):  # total biases/weights are 1 less than layer count.
+	# Total biases/weights are 1 less than layer count.
+	for layer in range(new_network.num_layers - 1):
 		new_network.biases[layer] = net.biases[layer].copy()
 		new_network.weights[layer] = net.weights[layer].copy()
 		var should_mutate_bias = _random.randf()
@@ -135,5 +135,4 @@ func _mutate(net: Network) -> Network:
 func _sort_networks(a: Network, b: Network) -> bool:
 	if a.reward < b.reward:
 		return true
-	else:
-		return false
+	return false
