@@ -63,7 +63,7 @@ func add_visualizer(visualizer_parent: Node, color := Color.WHITE):
 		return
 	_visualizer = (
 		preload("res://addons/NeuralNetwork/NetworkVisualizer/NetworkVisualizer.tscn").instantiate()
-		)
+	)
 	visualizer_parent.add_child(_visualizer)
 	_visualizer.identifier.color = color
 	_visualizer.visualize_network(self)
