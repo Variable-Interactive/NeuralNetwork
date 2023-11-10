@@ -16,7 +16,7 @@ config/features=PackedStringArray("4.1")
 
 [autoload]
 
-GeneticEvolution="*res://NeuralNetwork/AutoloadAlgorithms/GeneticEvolution.gd"
+GeneticEvolution="*res://addons/NeuralNetwork/AutoloadAlgorithms/GeneticEvolution.gd"
 
 [display]
 

@@ -9,7 +9,7 @@ The main motivation behind this is my personal curiosity. I was curious if it is
 
 ## Usage:
 Note: The code snippets are taken from the `FlappyTest` example game.
-1. Use the script in NeuralNetwork/AutoloadAlgorithms/GeneticEvolution.gd as an autoload
+1. Use the script in addons/NeuralNetwork/AutoloadAlgorithms/GeneticEvolution.gd as an autoload.
 2. In your player script (wherever that is) add a variable to keep track of the `Network`. do not assign anything to it yet (names need not be the same).
    ```
    .

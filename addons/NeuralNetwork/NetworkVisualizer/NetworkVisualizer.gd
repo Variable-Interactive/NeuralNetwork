@@ -11,7 +11,7 @@ const ACTIVATION_COLOR_INACTIVE := Color.BLACK
 const ACTIVATION_COLOR_NEGATIVE := Color.BLUE  # would appear in 1st layer
 
 var lines = []
-var node_texture = preload("res://NetworkVisualizer/Assets/Node.png")
+var node_texture = preload("res://addons/NeuralNetwork/NetworkVisualizer/Assets/Node.png")
 
 @onready var layer_container = $"%LayerContainer"
 @onready var identifier: ColorRect = $"%identifier"

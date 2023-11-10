@@ -3,8 +3,7 @@ on:
   push:
   pull_request:
     paths:
-      - "NeuralNetwork/**"
-      - "NetworkVisualizer/**"
+      - "addons/**"
       - "Examples/**"
 
 concurrency:

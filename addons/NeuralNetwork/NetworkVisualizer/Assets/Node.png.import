@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdn7rdjn4yq3q"
-path="res://.godot/imported/Node.png-452847f08af92a747107751256b209cd.ctex"
+path="res://.godot/imported/Node.png-a3b555be14fe5abceac8a367d2e58579.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://NetworkVisualizer/Assets/Node.png"
-dest_files=["res://.godot/imported/Node.png-452847f08af92a747107751256b209cd.ctex"]
+source_file="res://addons/NeuralNetwork/NetworkVisualizer/Assets/Node.png"
+dest_files=["res://.godot/imported/Node.png-a3b555be14fe5abceac8a367d2e58579.ctex"]
 
 [params]
 

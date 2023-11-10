@@ -26,7 +26,7 @@ var visualizer_popup
 
 
 func _ready() -> void:
-	visualizer_popup = preload("res://NetworkVisualizer/VisualizerPopup.tscn").instantiate()
+	visualizer_popup = preload("res://addons/NeuralNetwork/NetworkVisualizer/VisualizerPopup.tscn").instantiate()
 	add_child(visualizer_popup)
 	visualizer_popup.popup_centered()
 

@@ -61,7 +61,7 @@ func add_visualizer(visualizer_parent: Node, color := Color.WHITE):
 	if _visualizer:
 		print("already has a visualizer added")
 		return
-	_visualizer = preload("res://NetworkVisualizer/NetworkVisualizer.tscn").instantiate()
+	_visualizer = preload("res://addons/NeuralNetwork/NetworkVisualizer/NetworkVisualizer.tscn").instantiate()
 	visualizer_parent.add_child(_visualizer)
 	_visualizer.identifier.color = color
 	_visualizer.visualize_network(self)
