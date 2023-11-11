@@ -1,6 +1,7 @@
 extends PanelContainer
 
 const SCALE = 2
+const MAX_VISIBLE_NODES = 16
 
 const NODE_RADIUS := 6
 const LINE_COLOR_POSITIVE := Color.RED
@@ -21,8 +22,8 @@ func visualize_network(network: Network) -> void:
 	# generate a framework
 	var sep = 0
 	for i in network.sizes:
-		if i > sep:
-			sep = i
+		if min(MAX_VISIBLE_NODES, i) > sep:
+			sep = min(MAX_VISIBLE_NODES, i)
 	layer_container.set("theme_override_constants/separation", max(10, sep * 4))
 	for x in network.sizes.size():
 		var layer = _generate_layer()
@@ -57,8 +58,10 @@ func _get_activation_node(layer_idx, node_idx) -> TextureRect:
 
 func _update_activations(layer_idx, activations: Matrix):
 	for row in range(activations.no_of_rows):
-		var activation = activations.get_index(row, 0)
 		var layer = layer_container.get_child(layer_idx)
+		if !layer.get_child(row).visible:
+			break
+		var activation = activations.get_index(row, 0)
 		var color = ACTIVATION_COLOR_POSITIVE
 		if activation < 0:
 			color = lerp(
@@ -69,9 +72,9 @@ func _update_activations(layer_idx, activations: Matrix):
 				ACTIVATION_COLOR_INACTIVE, ACTIVATION_COLOR_POSITIVE, clamp(abs(activation), 0, 1)
 			)
 
-		layer.get_child(row - 1).self_modulate = color
-		layer.get_child(row - 1).get_child(0).self_modulate = color.inverted()
-		layer.get_child(row - 1).get_child(0).text = str(snappedf(activation, 0.1))
+		layer.get_child(row).self_modulate = color
+		layer.get_child(row).get_child(0).self_modulate = color.inverted()
+		layer.get_child(row).get_child(0).text = str(snappedf(activation, 0.1))
 	queue_redraw()
 
 
@@ -95,6 +98,11 @@ func _generate_node(layer):
 	label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	node_indicator.add_child(label)
 	layer.add_child(node_indicator)
+	if layer.get_child_count() > MAX_VISIBLE_NODES:
+		if layer.get_child_count() == MAX_VISIBLE_NODES + 1:
+			node_indicator.modulate.a = 0.1
+		else:
+			node_indicator.visible = false
 
 
 func _draw() -> void:
@@ -112,3 +120,4 @@ func _draw() -> void:
 
 func sigmoid(value: float) -> float:
 	return 1.0 / (1.0 + exp(-value))
+
