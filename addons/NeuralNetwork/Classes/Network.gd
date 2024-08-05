@@ -1,6 +1,7 @@
 class_name Network
 extends RefCounted
 # Written by Variable-ind (https://github.com/Variable-ind)
+enum Activation { SIGMOID, RELU }
 
 signal activation_changed(layer_idx: int, activations: Matrix)
 
@@ -33,7 +34,7 @@ func _init(
 		weights.append(Matrix.new(row_size, column_size, true))
 
 
-func feedforward(inputs: Array[float]) -> Matrix:
+func feedforward(inputs: Array[float], activation_func := Activation.SIGMOID) -> Matrix:
 	assert(inputs.size() == sizes[0], "Inputs are not equal to first layer nodes")
 
 	## Feeding our inputs to the activation matrix
@@ -50,7 +51,11 @@ func feedforward(inputs: Array[float]) -> Matrix:
 		var weight = weights[layer]  # Next layer's weight for this layer.
 		## Find the activation matrix for the next layer
 		## N+1 = Sigmoid of {(Weight).(N) + bias}
-		activation_matrix = weight.product_matrix(activation_matrix).add(bias).sigmoid()
+		match activation_func:
+			Activation.SIGMOID:
+				activation_matrix = weight.product_matrix(activation_matrix).add(bias).sigmoid()
+			Activation.RELU:
+				activation_matrix = weight.product_matrix(activation_matrix).add(bias).relu()
 		emit_signal("activation_changed", layer + 1, activation_matrix)
 
 	## Now the activation array consist of output activation

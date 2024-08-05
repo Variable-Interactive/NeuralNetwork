@@ -81,7 +81,7 @@ func fill(value: float) -> void:
 func product_matrix(b: Matrix) -> Matrix:
 	## check if matrix can be multiplied
 	assert(no_of_columns == b.no_of_rows, "Incompatible matrices, can not multiply")
-	var matrix = Matrix.new(no_of_rows, b.no_of_columns)
+	var matrix := Matrix.new(no_of_rows, b.no_of_columns)
 	for i: int in range(no_of_rows):
 		for j: int in range(b.no_of_columns):
 			for k: int in range(no_of_columns):
@@ -93,7 +93,7 @@ func product_matrix(b: Matrix) -> Matrix:
 ## Scalar Multiplication.
 func multiply_scalar(b: float) -> Matrix:
 	assert(no_of_rows >= 1 or no_of_columns >= 1, "Can not create, 0 or negative size detected")
-	var matrix = Matrix.new(no_of_rows, no_of_columns)
+	var matrix := Matrix.new(no_of_rows, no_of_columns)
 	# this will add two (x, 1) matrices
 	for row in range(no_of_rows):
 		for col in range(no_of_columns):
@@ -107,7 +107,7 @@ func add(b: Matrix) -> Matrix:
 	if Vector2i(no_of_rows, no_of_columns) != Vector2i(b.no_of_rows, b.no_of_columns):
 		printerr("Incompatible Matrices, can not add")
 		return Matrix.new(0, 0)
-	var matrix = Matrix.new(no_of_rows, no_of_columns)
+	var matrix := Matrix.new(no_of_rows, no_of_columns)
 	# this will add two (x, 1) matrices
 	for row: int in range(no_of_rows):
 		for col: int in range(no_of_columns):
@@ -119,20 +119,29 @@ func add(b: Matrix) -> Matrix:
 ## Returns a new matrix with the sigmoid values of original matrix.
 ## the sigmoid will work well on numbers above -36 or below 36
 func sigmoid() -> Matrix:
-	var matrix = Matrix.new(no_of_rows, no_of_columns)
-	# The sigmoid function.
+	var matrix := Matrix.new(no_of_rows, no_of_columns)
 	for row: int in range(no_of_rows):
 		for col: int in range(no_of_columns):
 			var x = get_index(row, col)
 			if x > 36 or x < -36:
-				push_warning("sigmoid may give incorrect results: ", x)
+				push_warning("Too large value!!!, sigmoid may give incorrect results: ", x)
 			var value = 1.0 / (1.0 + exp(- x))
 			matrix.set_index(row, col, value)
 	return matrix
 
 
+## ReLU (rectified linear unit) activation function
+func relu() -> Matrix:
+	var matrix := Matrix.new(no_of_rows, no_of_columns)
+	# The sigmoid function.
+	for row: int in range(no_of_rows):
+		for col: int in range(no_of_columns):
+			matrix.set_index(row, col, maxf(0, get_index(row, col)))
+	return matrix
+
+
 ## Returns a new unique clone of the matrix.
 func clone() -> Matrix:
-	var matrix = Matrix.new(no_of_rows, no_of_columns)
+	var matrix := Matrix.new(no_of_rows, no_of_columns)
 	matrix._matrix_array = _matrix_array.duplicate(true)
 	return matrix
