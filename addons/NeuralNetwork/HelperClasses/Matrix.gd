@@ -17,14 +17,28 @@ var _random := RandomNumberGenerator.new()
 var _matrix_array: Array[PackedFloat32Array]
 
 
-func _init(_rows: int, _columns: int, random := false) -> void:
+func _init(_rows: int, _columns: int, random := false, generate_fill := true) -> void:
 	_no_of_rows = _rows
 	_no_of_columns = _columns
-	_random.randomize()
-	if random:
-		make_rand_matrix()
+	if generate_fill:
+		if random:
+			make_rand_matrix()
+		else:
+			fill(0)
+
+
+## Returns a new unique clone of the matrix.
+func clone(transposed := false) -> Matrix:
+	var matrix: Matrix
+	if transposed:
+		matrix = Matrix.new(no_of_columns, no_of_rows)
+		for row in no_of_columns:
+			for col in no_of_rows:
+				matrix.set_index(row, col, get_index(col, row))
 	else:
-		fill(0)
+		matrix = Matrix.new(no_of_rows, no_of_columns, false, false)
+		matrix._matrix_array = _matrix_array.duplicate(true)
+	return matrix
 
 
 func set_index(row: int, col: int, value: float) -> void:
@@ -53,6 +67,7 @@ func print_pretty() -> void:
 ## with the specified [param mean] and a standard [param deviation].
 ## This is also called Gaussian distribution.
 func make_rand_matrix(mean: float = 0, deviation: float = 1.0) -> void:
+	_random.randomize()
 	assert(no_of_rows >= 1 or no_of_columns >= 1, "Can not create, 0 or negative size detected")
 	# rows increase top-down so y
 	# columns increase from left to right so x
@@ -69,7 +84,7 @@ func make_rand_matrix(mean: float = 0, deviation: float = 1.0) -> void:
 func fill(value: float) -> void:
 	assert(no_of_rows >= 1 or no_of_columns >= 1, "Can not create, 0 or negative size detected")
 	_matrix_array.clear()
-	for _y: int in range(no_of_rows):
+	for _y: int in no_of_rows:
 		var r: PackedFloat32Array = []
 		r.resize(no_of_columns)
 		r.fill(value)
@@ -77,7 +92,7 @@ func fill(value: float) -> void:
 
 
 # Operators
-## Matrix multiplication.
+## Matrix multiplication [equivalent of numpy.dot()].
 func product_matrix(b: Matrix) -> Matrix:
 	## check if matrix can be multiplied
 	assert(no_of_columns == b.no_of_rows, "Incompatible matrices, can not multiply")
@@ -90,10 +105,24 @@ func product_matrix(b: Matrix) -> Matrix:
 	return matrix
 
 
+## multiplies corresponding elements of two matrices [equivalent of python's (*)]
+func multiply_corresponding(b: Matrix) -> Matrix:
+	if Vector2i(no_of_rows, no_of_columns) != Vector2i(b.no_of_rows, b.no_of_columns):
+		printerr("Incompatible Matrices, can not multiply corressponding")
+		return Matrix.new(0, 0)
+	var matrix := clone()
+	# this will add two (x, 1) matrices
+	for row: int in range(no_of_rows):
+		for col: int in range(no_of_columns):
+			var value := get_index(row, col) * b.get_index(row, col)
+			matrix.set_index(row, col, value)
+	return matrix
+
+
 ## Scalar Multiplication.
 func multiply_scalar(b: float) -> Matrix:
 	assert(no_of_rows >= 1 or no_of_columns >= 1, "Can not create, 0 or negative size detected")
-	var matrix := Matrix.new(no_of_rows, no_of_columns)
+	var matrix := clone()
 	# this will add two (x, 1) matrices
 	for row in range(no_of_rows):
 		for col in range(no_of_columns):
@@ -102,24 +131,78 @@ func multiply_scalar(b: float) -> Matrix:
 	return matrix
 
 
-# Matrix Addition.
-func add(b: Matrix) -> Matrix:
-	if Vector2i(no_of_rows, no_of_columns) != Vector2i(b.no_of_rows, b.no_of_columns):
-		printerr("Incompatible Matrices, can not add")
-		return Matrix.new(0, 0)
-	var matrix := Matrix.new(no_of_rows, no_of_columns)
+# Addition.
+func add(b) -> Matrix:
+	if b is Matrix:
+		assert(
+			Vector2i(no_of_rows, no_of_columns) == Vector2i(b.no_of_rows, b.no_of_columns),
+			"Incompatible Matrices, can not add"
+		)
+	var matrix := clone()
 	# this will add two (x, 1) matrices
 	for row: int in range(no_of_rows):
 		for col: int in range(no_of_columns):
-			var value = get_index(row, col) + b.get_index(row, col)
-			matrix.set_index(row, col, value)
+			if b is Matrix:
+				matrix.set_index(row, col, get_index(row, col) + b.get_index(row, col))
+			else:
+				matrix.set_index(row, col, get_index(row, col) + b)
 	return matrix
+
+
+# subtraction (a - self).
+func subtract_from(a) -> Matrix:
+	if a is Matrix:
+		assert(
+			Vector2i(no_of_rows, no_of_columns) == Vector2i(a.no_of_rows, a.no_of_columns),
+			"Incompatible Matrices, can not add"
+		)
+	var matrix := clone()
+	# this will add two (x, 1) matrices
+	for row: int in range(no_of_rows):
+		for col: int in range(no_of_columns):
+			if a is Matrix:
+				matrix.set_index(row, col, a.get_index(row, col) - get_index(row, col))
+			else:
+				matrix.set_index(row, col, a - get_index(row, col) - a)
+	return matrix
+
+
+## Returns the index of maximum value in matrix
+func argmax() -> int:
+	var test: Array = []
+	for line: PackedFloat32Array in _matrix_array:
+		test.append_array(line)
+	return test.find(test.max())
+
+
+## Returns the index of minimum value in matrix
+func argmin() -> int:
+	var test: Array = []
+	for line: PackedFloat32Array in _matrix_array:
+		test.append_array(line)
+	return test.find(test.min())
+
+
+## Returns maximum value in matrix
+func max_value() -> float:
+	var result := 0.0
+	for line: PackedFloat32Array in _matrix_array:
+		result = maxf(Array(line).max(), result)
+	return result
+
+
+## Returns minimum value in matrix
+func min_value() -> float:
+	var result := 0.0
+	for line: PackedFloat32Array in _matrix_array:
+		result = minf(Array(line).min(), result)
+	return result
 
 
 ## Returns a new matrix with the sigmoid values of original matrix.
 ## the sigmoid will work well on numbers above -36 or below 36
 func sigmoid() -> Matrix:
-	var matrix := Matrix.new(no_of_rows, no_of_columns)
+	var matrix := clone()
 	for row: int in range(no_of_rows):
 		for col: int in range(no_of_columns):
 			var x = get_index(row, col)
@@ -130,9 +213,14 @@ func sigmoid() -> Matrix:
 	return matrix
 
 
+func sigmoid_prime() -> Matrix:
+	var sig_z := sigmoid()
+	return sig_z.multiply_corresponding(sig_z.subtract_from(1))
+
+
 ## ReLU (rectified linear unit) activation function
 func relu() -> Matrix:
-	var matrix := Matrix.new(no_of_rows, no_of_columns)
+	var matrix := clone()
 	# The sigmoid function.
 	for row: int in range(no_of_rows):
 		for col: int in range(no_of_columns):
@@ -140,8 +228,16 @@ func relu() -> Matrix:
 	return matrix
 
 
-## Returns a new unique clone of the matrix.
-func clone() -> Matrix:
-	var matrix := Matrix.new(no_of_rows, no_of_columns)
-	matrix._matrix_array = _matrix_array.duplicate(true)
+## softmax activation function
+## https://www.pinecone.io/learn/softmax-activation/
+func softmax() -> Matrix:
+	var matrix := clone()
+	var exp_sum = 0
+	# The sigmoid function.
+	for row: int in range(no_of_rows):
+		for col: int in range(no_of_columns):
+			exp_sum += exp(get_index(row, col))
+	for row: int in range(no_of_rows):
+		for col: int in range(no_of_columns):
+			matrix.set_index(row, col, exp(get_index(row, col)) / exp_sum)
 	return matrix

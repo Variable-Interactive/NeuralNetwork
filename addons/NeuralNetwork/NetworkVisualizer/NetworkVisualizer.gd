@@ -21,13 +21,13 @@ var node_texture = preload("res://addons/NeuralNetwork/NetworkVisualizer/Assets/
 func visualize_network(network: Network) -> void:
 	# generate a framework
 	var sep = 0
-	for i in network.sizes:
+	for i in network.layer_sizes:
 		if min(MAX_VISIBLE_NODES, i) > sep:
 			sep = min(MAX_VISIBLE_NODES, i)
 	layer_container.set("theme_override_constants/separation", max(10, sep * 4))
-	for x in network.sizes.size():
+	for x in network.num_layers:
 		var layer = _generate_layer()
-		for _y in range(network.sizes[x]):
+		for _y in range(network.layer_sizes[x]):
 			_generate_node(layer)
 	# now set weights
 	await get_tree().process_frame

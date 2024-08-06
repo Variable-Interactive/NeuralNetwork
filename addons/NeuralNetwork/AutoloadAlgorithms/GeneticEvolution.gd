@@ -11,7 +11,7 @@ const PERCENTAGE_MUTATED_NETWORKS = 0.5  ## 0 to 1 (how much mutatated networks 
 ## values from 1 (network is fully mutated) to 0 (no mutation in network)
 const MUTATION_DEGREE = 0.5
 
-var players_per_generation: int = 30
+var players_per_generation: int = 20
 
 # Don't mess with the variables below
 var visualizer_popup
@@ -107,7 +107,7 @@ func _crossover(parent_1: Network, parent_2: Network = null) -> Network:
 
 func _mutate(net: Network) -> Network:
 	_random.randomize()
-	var new_network: Network = Network.new(net.sizes)
+	var new_network: Network = Network.new(net.layer_sizes)
 	# Total biases/weights are 1 less than layer count.
 	for layer in range(new_network.num_layers - 1):
 		new_network.biases[layer] = net.biases[layer].clone()

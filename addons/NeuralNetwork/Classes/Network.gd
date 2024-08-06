@@ -1,41 +1,47 @@
 class_name Network
 extends RefCounted
 # Written by Variable-ind (https://github.com/Variable-ind)
-enum Activation { SIGMOID, RELU }
+# Heavily inspired by https://github.com/mnielsen/neural-networks-and-deep-learning/blob/master/src/network.py
 
 signal activation_changed(layer_idx: int, activations: Matrix)
 
-var num_layers: int
-var sizes := PackedInt32Array()
+var num_layers: int:
+	get:
+		return layer_sizes.size()
+
 var weights: Array[Matrix]  ## an array of weight square matrices
 var biases: Array[Matrix]  ## an array of bias column matrices
 
+var layer_sizes := PackedInt32Array()
 var _visualizer: Node
 
 
 func _init(
-	_layer_sizes: PackedInt32Array,
+	_sizes: PackedInt32Array,
 	copy_weights: Array[Matrix] = [],
 	copy_biases: Array[Matrix] = []
 ) -> void:
 	# initializing with random weights and biases
-	num_layers = _layer_sizes.size()
-	sizes = _layer_sizes
+	randomize()
+	layer_sizes = _sizes
 	if not copy_weights.is_empty() and not copy_weights.is_empty():
 		biases = copy_biases.duplicate(true)
 		weights = copy_weights.duplicate(true)
 		return
 
-	# make a fresh random copy
-	for layer in range(1, sizes.size()):  # 0th layer will have no bias/weights so we start with 1
-		var row_size = sizes[layer]  # number of rows (no of neurons in current layer)
-		var column_size = sizes[layer - 1]  # number of columns (no of neurons in previous layer)
+	# Make a fresh random copy
+	# NOTE: 0th layer will have no bias/weights so we start with 1
+	for layer in range(1, layer_sizes.size()):
+		# number of rows (no of neurons in current layer)
+		var row_size = layer_sizes[layer]
+		# number of columns (no of neurons in previous layer)
+		var column_size = layer_sizes[layer - 1]
 		biases.append(Matrix.new(row_size, 1, true))
 		weights.append(Matrix.new(row_size, column_size, true))
 
 
-func feedforward(inputs: Array[float], activation_func := Activation.SIGMOID) -> Matrix:
-	assert(inputs.size() == sizes[0], "Inputs are not equal to first layer nodes")
+func feedforward(inputs: Array[float]) -> Matrix:
+	assert(inputs.size() == layer_sizes[0], "Inputs are not equal to first layer nodes")
 
 	## Feeding our inputs to the activation matrix
 	var activation_matrix = Matrix.new(inputs.size(), 1)
@@ -51,20 +57,130 @@ func feedforward(inputs: Array[float], activation_func := Activation.SIGMOID) ->
 		var weight = weights[layer]  # Next layer's weight for this layer.
 		## Find the activation matrix for the next layer
 		## N+1 = Sigmoid of {(Weight).(N) + bias}
-		match activation_func:
-			Activation.SIGMOID:
-				activation_matrix = weight.product_matrix(activation_matrix).add(bias).sigmoid()
-			Activation.RELU:
-				activation_matrix = weight.product_matrix(activation_matrix).add(bias).relu()
+		activation_matrix = weight.product_matrix(activation_matrix).add(bias).sigmoid()
 		emit_signal("activation_changed", layer + 1, activation_matrix)
 
 	## Now the activation array consist of output activation
 	return activation_matrix
 
 
+## Train the neural network using mini-batch stochastic
+## gradient descent.  The ``training_data`` is a list of tuples
+## ``(x, y)`` representing the training inputs and the desired
+## outputs.  The other non-optional parameters are
+## self-explanatory.  If ``test_data`` is provided then the
+## network will be evaluated against the test data after each
+## epoch, and partial progress printed out.  This is useful for
+## tracking progress, but slows things down substantially."""
+func SGD(
+	training_data: Array[Array],
+	epochs: int,
+	mini_batch_size: int,
+	eta: float,
+	test_data: Array[Array] = []
+):
+	var n = len(training_data)
+	for j in range(epochs):
+		training_data.shuffle()
+		for k in range(0, n, mini_batch_size):
+			var mini_batch: Array[Array] = training_data.slice(k, k + mini_batch_size)
+			update_mini_batch(mini_batch, eta)
+		if test_data:
+			print("Epoch &s: &s / &s" % [str(j), str(evaluate(test_data)), str(len(test_data))])
+		else:
+			print("Epoch %s complete" % str(j))
+
+
+## Update the network's weights and biases by applying
+## gradient descent using backpropagation to a single mini batch.
+## The ``mini_batch`` is a list of tuples ``(x, y)``, and ``eta``
+## is the learning rate.
+func update_mini_batch(mini_batch: Array[Array], eta: float) -> void:
+	var total_nabla_b: Array[Matrix]
+	var total_nabla_w: Array[Matrix]
+	for b: Matrix in biases:
+		total_nabla_b.append(Matrix.new(b.no_of_rows, b.no_of_columns))
+	for w: Matrix in weights:
+		total_nabla_w.append(Matrix.new(w.no_of_rows, w.no_of_columns))
+
+	for activation_and_results: Array[Matrix] in mini_batch:
+		## error_array contains [nabla_b, nabla_w]
+		var error_array = backprop(activation_and_results[0], activation_and_results[1])
+		var delta_nabla_b: Array[Matrix] = error_array[0]
+		var delta_nabla_w: Array[Matrix] = error_array[1]
+
+		for i: int in total_nabla_b.size():
+			for dnb: Matrix in delta_nabla_b:
+				total_nabla_b[i] = total_nabla_b[i].add(dnb)
+		for i: int in total_nabla_w.size():
+			for dnw: Matrix in delta_nabla_w:
+				total_nabla_w[i] = total_nabla_w[i].add(dnw)
+
+	# update weights and biases accordinly
+	for i: int in weights.size():
+		for nw: Matrix in total_nabla_w:
+			weights[i] = nw.multiply_scalar(eta / len(mini_batch)).subtract_from(weights[i])
+
+	for i: int in biases.size():
+		for nb: Matrix in total_nabla_b:
+			biases[i] = nb.multiply_scalar(eta / len(mini_batch)).subtract_from(biases[i])
+
+
+## Return an Array [nabla_b, nabla_w] representing the gradient for the cost function C_x.
+## nabla_b and nabla_w are layer-by-layer matrices, similar to biases and weights.
+func backprop(x: Matrix, y: Matrix):
+	var nabla_b_array: Array[Matrix]
+	var nabla_w_array: Array[Matrix]
+	for b: Matrix in biases:
+		nabla_b_array.append(Matrix.new(b.no_of_rows, b.no_of_columns))
+	for w: Matrix in weights:
+		nabla_w_array.append(Matrix.new(w.no_of_rows, w.no_of_columns))
+
+	# feedforward
+	var activation: Matrix = x
+	var activations: Array[Matrix] = [x] # list to store all the activations, layer by layer
+	var zs: Array[Matrix] = [] # list to store all the z vectors, layer by layer
+	for b: Matrix in biases:
+		for w: Matrix in weights:
+			var z := w.product_matrix(activation).add(b)
+			zs.append(z)
+			activation = z.sigmoid()
+			activations.append(activation)
+
+	# backward pass
+	var delta := cost_derivative(activations[-1], y).multiply_corresponding(zs[-1].sigmoid_prime())
+	nabla_b_array[-1] = delta
+	nabla_w_array[-1] = delta.product_matrix(activations[-2].clone(true))
+	for l in range(2, num_layers):
+		var z := zs[-l]
+		var sp = z.sigmoid_prime()
+		delta = weights[-l+1].clone(true).product_matrix(delta).multiply_corresponding(sp)
+		nabla_b_array[-l] = delta
+		nabla_w_array[-l] = delta.product_matrix(activations[-l-1].clone(true))
+	return [nabla_b_array, nabla_w_array]
+
+
+## Return the number of test inputs for which the neural network outputs the correct result.
+## Note that the neural network's output is assumed to be the index of whichever neuron in the
+## final layer has the highest activation.
+func evaluate(test_data: Array[Array]):
+	var test_results: Array[Array] = []
+	var sum = 0
+	for sample: Array in test_data:
+		test_results.append([feedforward(sample[0]).argmax(), sample[1]])
+	for result: Array[float] in test_results:
+		sum += int(result[0] == result[1])
+
+
+## Return the vector of partial derivatives
+## (partial C_x / partial a) for the output activations.
+func cost_derivative(output_activations: Matrix, y: Matrix) -> Matrix:
+	return y.subtract_from(output_activations)
+
+
 ## Returns a unique clone of the network
 func clone() -> Network:
-	var new_network: Network = Network.new(sizes, weights, biases)
+	var new_network: Network = Network.new(layer_sizes, weights, biases)
 	return new_network
 
 
