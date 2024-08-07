@@ -86,7 +86,8 @@ func SGD(
 			var mini_batch: Array[Array] = training_data.slice(k, k + mini_batch_size)
 			update_mini_batch(mini_batch, eta)
 		if test_data:
-			print("Epoch %s: %s / %s" % [str(j), str(evaluate(test_data)), str(test_data.size())])
+			print("Epoch %s: %s" % [str(j), str(evaluate_cost(test_data))])
+			#print("Epoch %s: %s / %s" % [str(j), str(evaluate(test_data)), str(test_data.size())])
 		else:
 			print("Epoch %s complete" % str(j))
 
@@ -170,6 +171,18 @@ func evaluate(test_data: Array[Array]) -> int:
 	for result: Array[float] in test_results:
 		sum += int(result[0] == result[1])
 	return sum
+
+
+## A more general wey of visualizing performance of the network. The lower the cost, the better the
+## Performance.
+func evaluate_cost(test_data: Array[Array]) -> float:
+	var test_results: Array[Array] = []
+	var cost_sum: float = 0
+	for sample: Array[Matrix] in test_data:
+		var sum_i = feedforward(sample[0].to_array()).subtract_from(sample[1])
+		var sum_i_square := Array(sum_i.multiply_corresponding(sum_i).to_array())
+		cost_sum += sum_i_square.reduce(func(accum, number): return accum + number)
+	return cost_sum / test_data.size()
 
 
 ## Return the vector of partial derivatives

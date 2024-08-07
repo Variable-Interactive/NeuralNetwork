@@ -29,6 +29,7 @@ func _ready() -> void:
 
 		$Players.add_child(player)
 
+	GeneticEvolution.show_popup()
 	spawn_obstacle()
 
 

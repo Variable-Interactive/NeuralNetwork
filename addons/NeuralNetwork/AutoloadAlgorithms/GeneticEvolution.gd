@@ -28,6 +28,10 @@ func _ready() -> void:
 		preload("res://addons/NeuralNetwork/NetworkVisualizer/VisualizerPopup.tscn").instantiate()
 	)
 	add_child(visualizer_popup)
+	visualizer_popup.hide()
+
+
+func show_popup() -> void:
 	visualizer_popup.popup_centered()
 
 
