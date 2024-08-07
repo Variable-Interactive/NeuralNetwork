@@ -41,6 +41,14 @@ func clone(transposed := false) -> Matrix:
 	return matrix
 
 
+func to_array() -> PackedFloat32Array:
+	var array := PackedFloat32Array()
+	for row: int in no_of_rows:
+		for column: int in no_of_columns:
+			array.append(get_index(row, column))
+	return array
+
+
 func set_index(row: int, col: int, value: float) -> void:
 	if col > no_of_columns:
 		printerr("attempting to access column (", col, "), greater than", no_of_columns - 1)
@@ -66,7 +74,7 @@ func print_pretty() -> void:
 ## Returns a normally-distributed pseudo-random matrix, using Box-Muller transform
 ## with the specified [param mean] and a standard [param deviation].
 ## This is also called Gaussian distribution.
-func make_rand_matrix(mean: float = 0, deviation: float = 1.0) -> void:
+func make_rand_matrix(mean: float = 0, deviation: float = 0.2) -> void:
 	_random.randomize()
 	assert(no_of_rows >= 1 or no_of_columns >= 1, "Can not create, 0 or negative size detected")
 	# rows increase top-down so y
@@ -136,7 +144,11 @@ func add(b) -> Matrix:
 	if b is Matrix:
 		assert(
 			Vector2i(no_of_rows, no_of_columns) == Vector2i(b.no_of_rows, b.no_of_columns),
-			"Incompatible Matrices, can not add"
+			str(
+				"Incompatible Matrices, can not add. Self: ",
+				Vector2i(no_of_rows, no_of_columns),
+				", Other: ", Vector2i(b.no_of_rows, b.no_of_columns)
+			)
 		)
 	var matrix := clone()
 	# this will add two (x, 1) matrices
@@ -157,13 +169,12 @@ func subtract_from(a) -> Matrix:
 			"Incompatible Matrices, can not add"
 		)
 	var matrix := clone()
-	# this will add two (x, 1) matrices
 	for row: int in range(no_of_rows):
 		for col: int in range(no_of_columns):
 			if a is Matrix:
 				matrix.set_index(row, col, a.get_index(row, col) - get_index(row, col))
 			else:
-				matrix.set_index(row, col, a - get_index(row, col) - a)
+				matrix.set_index(row, col, a - get_index(row, col))
 	return matrix
 
 

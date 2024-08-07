@@ -46,7 +46,7 @@ func feedforward(inputs: Array[float]) -> Matrix:
 	## Feeding our inputs to the activation matrix
 	var activation_matrix = Matrix.new(inputs.size(), 1)
 	for row in range(activation_matrix.no_of_rows):
-		activation_matrix.set_index(row, 0, inputs[row])
+		activation_matrix.set_index(row, 0, clamp(inputs[row], -1, 1))
 	emit_signal("activation_changed", 0, activation_matrix)
 
 	## Calculate the next layer's activation array using to the weights and biases
@@ -65,10 +65,10 @@ func feedforward(inputs: Array[float]) -> Matrix:
 
 
 ## Train the neural network using mini-batch stochastic
-## gradient descent.  The ``training_data`` is a list of tuples
-## ``(x, y)`` representing the training inputs and the desired
+## gradient descent.  The training_data is an Array of Arrays
+## [data, expected output] representing the training inputs and the desired
 ## outputs.  The other non-optional parameters are
-## self-explanatory.  If ``test_data`` is provided then the
+## self-explanatory.  If test_data is provided then the
 ## network will be evaluated against the test data after each
 ## epoch, and partial progress printed out.  This is useful for
 ## tracking progress, but slows things down substantially."""
@@ -79,51 +79,45 @@ func SGD(
 	eta: float,
 	test_data: Array[Array] = []
 ):
-	var n = len(training_data)
+	var n = training_data.size()
 	for j in range(epochs):
 		training_data.shuffle()
 		for k in range(0, n, mini_batch_size):
 			var mini_batch: Array[Array] = training_data.slice(k, k + mini_batch_size)
 			update_mini_batch(mini_batch, eta)
 		if test_data:
-			print("Epoch &s: &s / &s" % [str(j), str(evaluate(test_data)), str(len(test_data))])
+			print("Epoch %s: %s / %s" % [str(j), str(evaluate(test_data)), str(test_data.size())])
 		else:
 			print("Epoch %s complete" % str(j))
+
+	if _visualizer:
+		_visualizer.update_weights(self)
 
 
 ## Update the network's weights and biases by applying
 ## gradient descent using backpropagation to a single mini batch.
-## The ``mini_batch`` is a list of tuples ``(x, y)``, and ``eta``
+## The mini_batch is  is an Array of Arrays [data, expected output], and eta
 ## is the learning rate.
 func update_mini_batch(mini_batch: Array[Array], eta: float) -> void:
 	var total_nabla_b: Array[Matrix]
 	var total_nabla_w: Array[Matrix]
-	for b: Matrix in biases:
-		total_nabla_b.append(Matrix.new(b.no_of_rows, b.no_of_columns))
-	for w: Matrix in weights:
-		total_nabla_w.append(Matrix.new(w.no_of_rows, w.no_of_columns))
+	for i: int in biases.size():
+		total_nabla_b.append(Matrix.new(biases[i].no_of_rows, biases[i].no_of_columns))
+		total_nabla_w.append(Matrix.new(weights[i].no_of_rows, weights[i].no_of_columns))
 
 	for activation_and_results: Array[Matrix] in mini_batch:
-		## error_array contains [nabla_b, nabla_w]
 		var error_array = backprop(activation_and_results[0], activation_and_results[1])
 		var delta_nabla_b: Array[Matrix] = error_array[0]
 		var delta_nabla_w: Array[Matrix] = error_array[1]
 
 		for i: int in total_nabla_b.size():
-			for dnb: Matrix in delta_nabla_b:
-				total_nabla_b[i] = total_nabla_b[i].add(dnb)
-		for i: int in total_nabla_w.size():
-			for dnw: Matrix in delta_nabla_w:
-				total_nabla_w[i] = total_nabla_w[i].add(dnw)
+			total_nabla_b[i] = total_nabla_b[i].add(delta_nabla_b[i])
+			total_nabla_w[i] = total_nabla_w[i].add(delta_nabla_w[i])
 
 	# update weights and biases accordinly
 	for i: int in weights.size():
-		for nw: Matrix in total_nabla_w:
-			weights[i] = nw.multiply_scalar(eta / len(mini_batch)).subtract_from(weights[i])
-
-	for i: int in biases.size():
-		for nb: Matrix in total_nabla_b:
-			biases[i] = nb.multiply_scalar(eta / len(mini_batch)).subtract_from(biases[i])
+		weights[i] = total_nabla_w[i].multiply_scalar(eta / mini_batch.size()).subtract_from(weights[i])
+		biases[i] = total_nabla_b[i].multiply_scalar(eta /  mini_batch.size()).subtract_from(biases[i])
 
 
 ## Return an Array [nabla_b, nabla_w] representing the gradient for the cost function C_x.
@@ -131,21 +125,26 @@ func update_mini_batch(mini_batch: Array[Array], eta: float) -> void:
 func backprop(x: Matrix, y: Matrix):
 	var nabla_b_array: Array[Matrix]
 	var nabla_w_array: Array[Matrix]
-	for b: Matrix in biases:
-		nabla_b_array.append(Matrix.new(b.no_of_rows, b.no_of_columns))
-	for w: Matrix in weights:
-		nabla_w_array.append(Matrix.new(w.no_of_rows, w.no_of_columns))
+	for i: int in biases.size():
+		nabla_b_array.append(Matrix.new(biases[i].no_of_rows, biases[i].no_of_columns))
+		nabla_w_array.append(Matrix.new(weights[i].no_of_rows, weights[i].no_of_columns))
 
 	# feedforward
-	var activation: Matrix = x
+	var activation_matrix: Matrix = x
 	var activations: Array[Matrix] = [x] # list to store all the activations, layer by layer
 	var zs: Array[Matrix] = [] # list to store all the z vectors, layer by layer
-	for b: Matrix in biases:
-		for w: Matrix in weights:
-			var z := w.product_matrix(activation).add(b)
-			zs.append(z)
-			activation = z.sigmoid()
-			activations.append(activation)
+	## Calculate the next layer's activation array using to the weights and biases
+	## the next layer holds for the current layer. (and loop through this procedure till
+	## the final layer's activation array is achieved)
+	for layer in num_layers - 1:
+		var bias = biases[layer]  # Next layer's bias for this layer.
+		var weight = weights[layer]  # Next layer's weight for this layer.
+		## Find the activation matrix for the next layer
+		## N+1 = Sigmoid of {(Weight).(N) + bias}
+		var z = weight.product_matrix(activation_matrix).add(bias)
+		zs.append(z)
+		activation_matrix = z.sigmoid()
+		activations.append(activation_matrix)
 
 	# backward pass
 	var delta := cost_derivative(activations[-1], y).multiply_corresponding(zs[-1].sigmoid_prime())
@@ -154,7 +153,7 @@ func backprop(x: Matrix, y: Matrix):
 	for l in range(2, num_layers):
 		var z := zs[-l]
 		var sp = z.sigmoid_prime()
-		delta = weights[-l+1].clone(true).product_matrix(delta).multiply_corresponding(sp)
+		delta = weights[-l + 1].clone(true).product_matrix(delta).multiply_corresponding(sp)
 		nabla_b_array[-l] = delta
 		nabla_w_array[-l] = delta.product_matrix(activations[-l-1].clone(true))
 	return [nabla_b_array, nabla_w_array]
@@ -163,13 +162,14 @@ func backprop(x: Matrix, y: Matrix):
 ## Return the number of test inputs for which the neural network outputs the correct result.
 ## Note that the neural network's output is assumed to be the index of whichever neuron in the
 ## final layer has the highest activation.
-func evaluate(test_data: Array[Array]):
+func evaluate(test_data: Array[Array]) -> int:
 	var test_results: Array[Array] = []
-	var sum = 0
-	for sample: Array in test_data:
-		test_results.append([feedforward(sample[0]).argmax(), sample[1]])
+	var sum: int = 0
+	for sample: Array[Matrix] in test_data:
+		test_results.append([feedforward(sample[0].to_array()).argmax(), sample[1].argmax()])
 	for result: Array[float] in test_results:
 		sum += int(result[0] == result[1])
+	return sum
 
 
 ## Return the vector of partial derivatives
