@@ -1,5 +1,7 @@
 # NeuralNetwork
 
+https://github.com/user-attachments/assets/06bab21a-beea-428c-bb71-c8689a14614f
+
 https://github.com/Variable-Interactive/NeuralNetwork/assets/77773850/bc4dfbba-87b8-4835-9ffc-c82acd42c720
 
 this is a simple neural network using my abomination of a genetic algorithm (LoL).
