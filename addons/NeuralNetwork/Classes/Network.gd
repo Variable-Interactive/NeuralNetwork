@@ -40,6 +40,34 @@ func _init(
 		weights.append(Matrix.new(row_size, column_size, true))
 
 
+func serialize() -> Dictionary:
+	var data = {
+		"layer_sizes": layer_sizes,
+		"weights": [],
+		"biases": []
+	}
+	for i in weights.size():
+		data["weights"].append(weights[i].get_data())
+		data["biases"].append(biases[i].get_data())
+	return data
+
+
+static func create_network_from_dictionary(data: Dictionary) -> Network:
+	if data.has("layer_sizes") and data.has("weights") and data.has("biases"):
+		var sizes: PackedInt32Array = PackedInt32Array(data["layer_sizes"])
+		var n_weights: Array[Matrix] = []
+		var n_biases: Array[Matrix] = []
+		for i: int in data["weights"].size():
+			var weight_array: Array[PackedFloat32Array] = Array(data["weights"][i], TYPE_PACKED_FLOAT32_ARRAY, "", null)
+			var bias_array: Array[PackedFloat32Array] = Array(data["biases"][i], TYPE_PACKED_FLOAT32_ARRAY, "", null)
+			var w_mat: Matrix = Matrix.create_from_data(weight_array)
+			var b_mat: Matrix = Matrix.create_from_data(bias_array)
+			n_weights.append(w_mat)
+			n_biases.append(b_mat)
+		return Network.new(sizes, n_weights, n_biases)
+	return null
+
+
 func feedforward(inputs: Array[float]) -> Matrix:
 	assert(inputs.size() == layer_sizes[0], "Inputs are not equal to first layer nodes")
 
